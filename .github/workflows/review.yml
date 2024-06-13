@@ -25,7 +25,7 @@ jobs:
         run: npm install private-reviewer
 
       - name: Run code review script
-        run: npx private-reviewer review --model="deepseek-chat" --basePath="https://api.deepseek.com/v1" --ci=github
+        run: npx private-reviewer review --model="deepseek-chat" --baseURL="https://api.deepseek.com/v1" --ci=github
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           BASE_SHA: ${{ github.event.pull_request.base.sha }}
