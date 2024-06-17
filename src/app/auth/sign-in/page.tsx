@@ -1,10 +1,13 @@
 'use client';
 
 import { paths } from '@/paths';
+import useUserStore from '@/store/user';
 import { zodResolver } from '@hookform/resolvers/zod';
 import VisibilityOffOutlinedIcon from '@mui/icons-material/VisibilityOffOutlined';
 import VisibilityOutlinedIcon from '@mui/icons-material/VisibilityOutlined';
 import {
+  Alert,
+  Box,
   Button,
   FormControl,
   FormHelperText,
@@ -39,8 +42,24 @@ export default function SignInPage() {
     formState: { errors },
   } = useForm<Values>({ defaultValues, resolver: zodResolver(schema) });
 
-  const onSubmit = (values: Values) => {
-    console.log(values);
+  const signIn = useUserStore((state) => state.signIn);
+
+  const [isPending, setIsPending] = React.useState(false);
+
+  const onSubmit = async (values: Values) => {
+    setIsPending(true);
+
+    const { user, error } = await signIn({
+      email: values.email,
+      password: values.password,
+    });
+
+    if (error) {
+      setError('root', { type: 'server', message: error });
+      setIsPending(false);
+      return;
+    }
+    setIsPending(false);
   };
 
   const [showPassword, setShowPassword] = React.useState(false);
@@ -112,7 +131,20 @@ export default function SignInPage() {
               </FormControl>
             )}
           ></Controller>
-          <Button type="submit" variant="contained">
+
+          <Box>
+            <Link
+              component={RouterLink}
+              href={paths.auth.forgotPassword}
+              variant="subtitle2"
+            >
+              Forgot password?
+            </Link>
+          </Box>
+
+          {errors.root && <Alert color="error">{errors.root.message}</Alert>}
+
+          <Button disabled={isPending} type="submit" variant="contained">
             Sign in
           </Button>
         </Stack>
