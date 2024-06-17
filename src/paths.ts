@@ -5,4 +5,7 @@ export const paths = {
     signUp: '/auth/sign-up',
     forgotPassword: '/auth/forgot-password',
   },
+  dashboard: {
+    overview: '/dashboard',
+  },
 } as const;
