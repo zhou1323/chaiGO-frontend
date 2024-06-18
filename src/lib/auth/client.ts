@@ -7,6 +7,12 @@ export interface SignInParams {
   password: string;
 }
 
+export interface SignUpParams {
+  email: string;
+  password: string;
+  userName: string;
+}
+
 export interface resetPasswordParams {
   email: string;
 }
@@ -23,6 +29,14 @@ export function signOut(): Promise<BaseResponse> {
   return request({
     url: '/auth/sign-out',
     method: 'POST',
+  });
+}
+
+export function signUp(data: SignUpParams): Promise<ApiResponse<User>> {
+  return request({
+    url: '/auth/sign-up',
+    method: 'POST',
+    data,
   });
 }
 
