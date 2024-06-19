@@ -7,6 +7,10 @@ export interface SignInParams {
   password: string;
 }
 
+export interface SignOutParams {
+  email: string;
+}
+
 export interface SignUpParams {
   email: string;
   password: string;
@@ -25,10 +29,11 @@ export function signIn(data: SignInParams): Promise<ApiResponse<User>> {
   });
 }
 
-export function signOut(): Promise<BaseResponse> {
+export function signOut(data: SignOutParams): Promise<BaseResponse> {
   return request({
     url: '/auth/sign-out',
     method: 'POST',
+    data,
   });
 }
 
