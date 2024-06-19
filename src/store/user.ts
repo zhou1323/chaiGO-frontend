@@ -1,4 +1,11 @@
-import { signIn, SignInParams, signUp, SignUpParams } from '@/lib/auth/client';
+import {
+  SignInParams,
+  SignOutParams,
+  SignUpParams,
+  signIn,
+  signOut,
+  signUp,
+} from '@/lib/auth/client';
 import { removeToken, setToken } from '@/lib/token';
 import { User } from '@/types/user';
 import { create } from 'zustand';
@@ -6,7 +13,7 @@ import { create } from 'zustand';
 interface UserState {
   user: User | null;
   signIn: (params: SignInParams) => Promise<{ user?: User; error?: string }>;
-  signOut: () => void;
+  signOut: (params: SignOutParams) => Promise<{ message?: string }>;
   signUp: (params: SignUpParams) => Promise<{ user?: User; message?: string }>;
 }
 
@@ -22,9 +29,16 @@ const useUserStore = create<UserState>()((set) => ({
       return { user: res.data };
     }
   },
-  signOut: () => {
-    set({ user: null });
-    removeToken();
+
+  signOut: async (params) => {
+    const res = await signOut(params);
+    if (res.message) {
+      return { message: res.message };
+    } else {
+      set({ user: null });
+      removeToken();
+      return {};
+    }
   },
 
   signUp: async (params) => {

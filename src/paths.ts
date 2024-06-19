@@ -7,5 +7,6 @@ export const paths = {
   },
   dashboard: {
     overview: '/dashboard',
+    settings: '/dashboard/settings',
   },
 } as const;
