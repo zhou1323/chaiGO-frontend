@@ -16,7 +16,9 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         >
           <MainNav handleNavOpen={() => setNavOpen(!navOpen)} />
           <main>
-            <Container maxWidth={false}>{children}</Container>
+            <Container maxWidth={false} className="py-10">
+              {children}
+            </Container>
           </main>
         </Box>
       </Box>
