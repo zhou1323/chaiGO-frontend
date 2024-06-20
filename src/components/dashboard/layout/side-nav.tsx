@@ -8,16 +8,21 @@ import {
   ListItemText,
   Stack,
 } from '@mui/material';
+import { useTheme } from '@mui/material/styles';
+import useMediaQuery from '@mui/material/useMediaQuery';
 import { usePathname, useRouter } from 'next/navigation';
-import { navItems } from './config';
-const renderNavItems = (items: any) => {
-  const children = items.map((item: any) => {
-    return <NavItem key={item.key} {...item}></NavItem>;
+import { NavItemProps, navItems } from './config';
+
+const renderNavItems = (items: NavItemProps[]) => {
+  const children = items.map((item: NavItemProps) => {
+    // remote the key prop from the item
+    const { key, ...rest } = item;
+    return <NavItem key={key} {...rest}></NavItem>;
   });
   return <List>{children}</List>;
 };
 
-const NavItem = ({ path, icon, label }: any) => {
+const NavItem = ({ path, icon, label }: NavItemProps) => {
   const pathName = usePathname();
   const Icon = icon;
   const router = useRouter();
@@ -34,13 +39,21 @@ const NavItem = ({ path, icon, label }: any) => {
   );
 };
 
-export default function SideNav({ open, onClose }: any) {
+export default function SideNav({
+  open,
+  onClose,
+}: {
+  open: boolean;
+  onClose: () => void;
+}): React.JSX.Element {
+  const theme = useTheme();
+  const isPC = useMediaQuery(theme.breakpoints.up('lg'));
   return (
     <Box>
       <Drawer
-        variant="persistent"
+        variant={isPC ? 'persistent' : 'temporary'}
         open={open}
-        className="hidden lg:block"
+        onClose={onClose}
         PaperProps={{ className: 'w-60' }}
       >
         <Stack>
@@ -49,20 +62,9 @@ export default function SideNav({ open, onClose }: any) {
               component="img"
               alt="logo"
               className="h-16"
-              src="/assets/image.png"
+              src="/assets/logo.png"
             ></Box>
           </Box>
-          <Box component="nav">{renderNavItems(navItems)}</Box>
-        </Stack>
-      </Drawer>
-      <Drawer
-        variant="temporary"
-        open={open}
-        onClose={onClose}
-        className="block lg:hidden"
-        PaperProps={{ className: 'w-60' }}
-      >
-        <Stack>
           <Box component="nav">{renderNavItems(navItems)}</Box>
         </Stack>
       </Drawer>

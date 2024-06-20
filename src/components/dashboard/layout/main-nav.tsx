@@ -18,7 +18,11 @@ import {
 } from '@mui/material';
 import RouterLink from 'next/link';
 import { useRouter } from 'next/navigation';
-export default function MainNav({ navOpen, handleNavOpen }: any) {
+export default function MainNav({
+  handleNavOpen,
+}: {
+  handleNavOpen: () => void;
+}) {
   const userPopover = usePopover<HTMLDivElement>();
 
   const user = useUserStore((state) => state.user);
@@ -39,7 +43,10 @@ export default function MainNav({ navOpen, handleNavOpen }: any) {
   };
 
   return (
-    <Box component="header">
+    <Box
+      component="header"
+      className="sticky top-0 z-10 border-x-0 border-b-2 border-t-0 border-solid border-gray-200 bg-white"
+    >
       <Stack
         direction="row"
         spacing={2}
