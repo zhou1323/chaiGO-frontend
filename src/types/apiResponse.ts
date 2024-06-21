@@ -7,3 +7,11 @@ export interface BaseResponse {
 export interface ApiResponse<T> extends BaseResponse {
   data: T;
 }
+
+export interface PageResponse<T> extends BaseResponse {
+  data: {
+    items: T[];
+    total: number;
+    pages: number;
+  };
+}
