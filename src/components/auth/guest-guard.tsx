@@ -1,7 +1,7 @@
 'use client';
 
+import { getToken } from '@/lib/token';
 import { paths } from '@/paths';
-import useUserStore from '@/store/user';
 import { useRouter } from 'next/navigation';
 import * as React from 'react';
 
@@ -14,18 +14,18 @@ export default function GuestGuard({
 }: {
   children: React.ReactNode;
 }) {
-  const user = useUserStore((state) => state.user);
+  const token: string | null = getToken();
   const router = useRouter();
 
   const checkPermissions = () => {
-    if (user) {
+    if (token) {
       router.replace(paths.dashboard.overview);
     }
   };
 
   React.useEffect(() => {
     checkPermissions();
-  }, [checkPermissions, user, router]);
+  }, [checkPermissions, token, router]);
 
   return <>{children}</>;
 }

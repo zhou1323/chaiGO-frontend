@@ -1,4 +1,5 @@
 'use client';
+import AuthGuard from '@/components/auth/auth-guard';
 import MainNav from '@/components/dashboard/layout/main-nav';
 import SideNav from '@/components/dashboard/layout/side-nav';
 import { Box, Container } from '@mui/material';
@@ -8,7 +9,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   const [navOpen, setNavOpen] = React.useState(false);
 
   return (
-    <>
+    <AuthGuard>
       <Box className="flex flex-row">
         <SideNav open={navOpen} onClose={() => setNavOpen(false)} />
         <Box
@@ -22,6 +23,6 @@ export default function Layout({ children }: { children: React.ReactNode }) {
           </main>
         </Box>
       </Box>
-    </>
+    </AuthGuard>
   );
 }

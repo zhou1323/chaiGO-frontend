@@ -2,6 +2,7 @@ import { paths } from '@/paths';
 import axios from 'axios';
 import Router from 'next/router';
 import { getToken, removeToken } from './token';
+import { convertToCamel } from './utils';
 
 const request = axios.create({
   baseURL: process.env.NEXT_PUBLIC_BASE_URL,
@@ -23,6 +24,7 @@ request.interceptors.request.use(
 
 request.interceptors.response.use(
   (response) => {
+    response.data = convertToCamel(response.data);
     return response.data;
   },
   (error) => {

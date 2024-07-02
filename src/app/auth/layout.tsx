@@ -31,7 +31,7 @@ export default function AuthLayout({
               <Box
                 component="img"
                 className="h-auto w-full max-w-[600px]"
-                src="/assets/image.png"
+                src="/assets/logo.png"
               ></Box>
             </Box>
           </Stack>

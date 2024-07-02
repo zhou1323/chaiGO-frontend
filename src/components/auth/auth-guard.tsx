@@ -1,7 +1,7 @@
 'use client';
 
+import { getToken } from '@/lib/token';
 import { paths } from '@/paths';
-import useUserStore from '@/store/user';
 import { useRouter } from 'next/navigation';
 import * as React from 'react';
 
@@ -9,18 +9,18 @@ import * as React from 'react';
 // If the user is authenticated, it will redirect the user to the dashboard.
 
 export default function AuthGuard({ children }: { children: React.ReactNode }) {
-  const user = useUserStore((state) => state.user);
+  const token: string | null = getToken();
   const router = useRouter();
 
   const checkPermissions = () => {
-    if (!user) {
+    if (!token) {
       router.replace(paths.auth.signIn);
     }
   };
 
   React.useEffect(() => {
     checkPermissions();
-  }, [checkPermissions, user, router]);
+  }, [checkPermissions, token, router]);
 
   return <>{children}</>;
 }

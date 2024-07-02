@@ -9,48 +9,72 @@ import {
 import { removeToken, setToken } from '@/lib/token';
 import { User } from '@/types/user';
 import { create } from 'zustand';
-
+import { createJSONStorage, persist } from 'zustand/middleware';
 interface UserState {
   user: User | null;
-  signIn: (params: SignInParams) => Promise<{ user?: User; error?: string }>;
+  signIn: (params: SignInParams) => Promise<{ user?: User; message?: string }>;
   signOut: (params: SignOutParams) => Promise<{ message?: string }>;
-  signUp: (params: SignUpParams) => Promise<{ user?: User; message?: string }>;
+  signUp: (params: SignUpParams) => Promise<{ message?: string }>;
 }
 
-const useUserStore = create<UserState>()((set) => ({
-  user: null,
-  signIn: async (params) => {
-    const res = await signIn(params);
-    if (res.message) {
-      return { error: res.message };
-    } else {
-      res.token && setToken(res.token);
-      set({ user: res.data });
-      return { user: res.data };
-    }
-  },
+const useUserStore = create<UserState>()(
+  persist(
+    (set) => ({
+      user: null,
+      signIn: async (params) => {
+        try {
+          const res = await signIn(params);
+          const { data, message } = res;
 
-  signOut: async (params) => {
-    const res = await signOut(params);
-    if (res.message) {
-      return { message: res.message };
-    } else {
-      set({ user: null });
-      removeToken();
-      return {};
-    }
-  },
+          if (message) {
+            return { message };
+          }
 
-  signUp: async (params) => {
-    const res = await signUp(params);
-    if (res.message) {
-      return { message: res.message };
-    } else {
-      res.token && setToken(res.token);
-      set({ user: res.data });
-      return { user: res.data };
+          setToken(data.accessToken);
+          set({ user: data });
+
+          return { user: data };
+        } catch (error: any) {
+          return { message: error.response?.data.detail || error.message };
+        }
+      },
+
+      signOut: async (params) => {
+        try {
+          const { message } = await signOut(params);
+          if (message) {
+            return { message };
+          } else {
+            set({ user: null });
+            removeToken();
+            return {};
+          }
+        } catch (error: any) {
+          return { message: error.response?.data.detail || error.message };
+        }
+      },
+
+      signUp: async (params) => {
+        try {
+          const res = await signUp(params);
+          const { message } = res;
+
+          if (message) {
+            return { message };
+          } else {
+            return {};
+          }
+        } catch (error: any) {
+          return { message: error.response?.data.detail || error.message };
+        }
+      },
+    }),
+    {
+      name: 'userStore',
+      storage: createJSONStorage(() => localStorage),
+      partialize: (state) => ({ user: state.user }),
     }
-  },
-}));
+  )
+);
 
 export default useUserStore;

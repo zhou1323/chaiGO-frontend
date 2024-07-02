@@ -14,6 +14,7 @@ import {
 } from '@mui/material';
 import Link from '@mui/material/Link';
 import RouterLink from 'next/link';
+import { useRouter } from 'next/navigation';
 import * as React from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { z as zod } from 'zod';
@@ -22,14 +23,14 @@ const schema = zod.object({
   email: zod.string().min(1, { message: 'Email is required' }).email(),
   password: zod
     .string()
-    .min(6, { message: 'Password should be at least 6 characters' }),
-  userName: zod.string().min(1, { message: 'Username is required' }),
+    .min(8, { message: 'Password should be at least 8 characters' }),
+  username: zod.string().min(1, { message: 'Username is required' }),
 });
 
 type Values = zod.infer<typeof schema>;
 
 const defaultValues = {
-  userName: '',
+  username: '',
   email: '',
   password: '',
 } satisfies Values;
@@ -46,12 +47,16 @@ export default function SignUpPage() {
 
   const signUp = useUserStore((state) => state.signUp);
 
+  const router = useRouter();
   const onSubmit = async (values: Values) => {
-    const { user, message } = await signUp(values);
+    setIsPending(true);
+
+    const { message } = await signUp(values);
+
     if (message) {
       setError('root', { type: 'server', message: message });
-      setIsPending(false);
-      return;
+    } else {
+      router.push(paths.auth.signIn);
     }
     setIsPending(false);
   };
@@ -76,14 +81,14 @@ export default function SignUpPage() {
       <form onSubmit={handleSubmit(onSubmit)}>
         <Stack spacing={2}>
           <Controller
-            name="userName"
+            name="username"
             control={control}
             render={({ field }) => (
-              <FormControl error={Boolean(errors.userName)}>
+              <FormControl error={Boolean(errors.username)}>
                 <InputLabel>Username</InputLabel>
                 <OutlinedInput {...field} label="Username" />
-                {errors.userName && (
-                  <FormHelperText>{errors.userName.message}</FormHelperText>
+                {errors.username && (
+                  <FormHelperText>{errors.username.message}</FormHelperText>
                 )}
               </FormControl>
             )}
