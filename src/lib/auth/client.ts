@@ -1,10 +1,16 @@
 import request from '@/lib/request';
-import { ApiResponse, BaseResponse } from '@/types/apiResponse';
-import { User } from '@/types/user';
+import {
+  ApiResponse,
+  ApiResponseWithToken,
+  BaseResponse,
+} from '@/types/apiResponse';
+import { Captcha } from '@/types/captcha';
+import { UserWithToken } from '@/types/user';
 
 export interface SignInParams {
   email: string;
   password: string;
+  captcha: string;
 }
 
 export interface SignOutParams {
@@ -14,18 +20,32 @@ export interface SignOutParams {
 export interface SignUpParams {
   email: string;
   password: string;
-  userName: string;
+  username: string;
 }
 
-export interface resetPasswordParams {
+export interface revocerPasswordParam {
   email: string;
 }
 
-export function signIn(data: SignInParams): Promise<ApiResponse<User>> {
+export interface resetPasswordParam {
+  newPassword: string;
+  token: string;
+}
+
+export function signIn(
+  data: SignInParams
+): Promise<ApiResponseWithToken<UserWithToken>> {
+  const { email, password, captcha } = data;
+  const formData = new FormData();
+  formData.append('username', email);
+  formData.append('password', password);
+  // formData.append('captcha', captcha);
+
   return request({
     url: '/auth/sign-in',
     method: 'POST',
-    data,
+    data: formData,
+    headers: { 'Content-Type': 'multipart/form-data' },
   });
 }
 
@@ -37,7 +57,7 @@ export function signOut(data: SignOutParams): Promise<BaseResponse> {
   });
 }
 
-export function signUp(data: SignUpParams): Promise<ApiResponse<User>> {
+export function signUp(data: SignUpParams): Promise<BaseResponse> {
   return request({
     url: '/auth/sign-up',
     method: 'POST',
@@ -45,12 +65,27 @@ export function signUp(data: SignUpParams): Promise<ApiResponse<User>> {
   });
 }
 
-export function resetPassword(
-  data: resetPasswordParams
+export function recoverPassword(
+  data: revocerPasswordParam
 ): Promise<BaseResponse> {
+  return request({
+    url: '/auth/recover-password',
+    method: 'GET',
+    params: data,
+  });
+}
+
+export function resetPassword(data: resetPasswordParam): Promise<BaseResponse> {
   return request({
     url: '/auth/reset-password',
     method: 'POST',
     data,
+  });
+}
+
+export function getCaptcha(): Promise<ApiResponse<Captcha>> {
+  return request({
+    url: '/auth/captcha',
+    method: 'GET',
   });
 }

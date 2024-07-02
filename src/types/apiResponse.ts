@@ -1,10 +1,18 @@
 export interface BaseResponse {
   code: number;
   message?: string;
-  token?: string;
+}
+
+export interface DataWithToken {
+  accessToken?: string;
 }
 
 export interface ApiResponse<T> extends BaseResponse {
+  data?: T;
+}
+
+export interface ApiResponseWithToken<T extends DataWithToken>
+  extends BaseResponse {
   data: T;
 }
 

@@ -86,11 +86,9 @@ export default function MainNav({
             slotProps={{ paper: { className: 'w-60' } }}
           >
             <Box className="px-4 py-5">
-              <Typography variant="subtitle1">
-                {user?.username || 'Test'}
-              </Typography>
+              <Typography variant="subtitle1">{user?.username}</Typography>
               <Typography color="text.secondary" variant="body2">
-                {user?.email || 'Test@test.com'}
+                {user?.email}
               </Typography>
             </Box>
             <Divider />
