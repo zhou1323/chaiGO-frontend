@@ -1,8 +1,9 @@
 'use client';
 import ReceiptsFilter from '@/components/dashboard/receipts/receipts-filter';
 import ReceiptsTable from '@/components/dashboard/receipts/receipts-table';
+import { useSelection } from '@/hooks/use-selection';
 import { deleteReceipt, getReceiptsList } from '@/lib/dashboard/receiptClient';
-import { Receipt } from '@/types/receipt';
+import { Receipt, ReceiptFilterParams } from '@/types/receipt';
 import { Add, FileDownload, FileUpload } from '@mui/icons-material';
 import { Button, Stack, Typography } from '@mui/material';
 import * as React from 'react';
@@ -14,17 +15,38 @@ export default function ReceiptsPage({
   handleAdd: () => void;
   handleEdit: (id: string) => void;
 }): React.JSX.Element {
-  const [description, setDescription] = React.useState('');
-  const [category, setCategory] = React.useState('');
-  const [startDate, setStartDate] = React.useState('');
-  const [endDate, setEndDate] = React.useState('');
+  // Receipt
   const [receipts, setReceipts] = React.useState<Receipt[]>([]);
+  const search = async () => {
+    try {
+      const params = {
+        ...filter,
+        page: page + 1, // 1-based
+        size,
+        orderBy,
+        orderType,
+      };
+
+      const { items, total } = await getReceiptsList(params);
+
+      setReceipts(items);
+      setCount(total);
+    } catch (error: any) {
+      console.log(error.response?.data.detail || error.message);
+    }
+  };
+
+  // Params to filter receipts
+  const [filter, setFilter] = React.useState({} as ReceiptFilterParams);
+
+  const filterProps = {
+    filter,
+    setFilter,
+  };
+
+  // Sorting
   const [orderBy, setOrderBy] = React.useState('');
   const [orderType, setOrderType] = React.useState<'asc' | 'desc'>('asc');
-
-  const [count, setCount] = React.useState(0);
-  const [page, setPage] = React.useState(0);
-  const [limit, setLimit] = React.useState(10);
 
   const handleRequestSort = (property: string) => {
     const isAsc = orderBy === property && orderType === 'asc';
@@ -32,37 +54,70 @@ export default function ReceiptsPage({
     setOrderBy(property);
   };
 
-  const search = async () => {
-    const { message, data } = await getReceiptsList({
-      page,
-      limit,
-      description,
-      category,
-      startDate,
-      endDate,
-    });
-    if (message) {
-      console.log(message);
-    } else {
-      console.log(data);
-      const { items, total, totalPage } = data;
-      setReceipts(items);
-      setCount(total);
-    }
+  const sortingProps = {
+    orderBy,
+    orderType,
+    handleRequestSort,
   };
 
-  const handleDeleteReceipt = async (ids: string[]) => {
-    const { message } = await deleteReceipt({ ids });
-    if (message) {
-      console.log(message);
-    } else {
-      search();
-    }
+  // Pagination
+  const [count, setCount] = React.useState(0);
+  const [page, setPage] = React.useState(0);
+  const [size, setSize] = React.useState(10);
+
+  const handleChangePage = (event: unknown, newPage: number): void => {
+    setPage(newPage);
+  };
+  const handleChangeRowsPerPage = (
+    event: React.ChangeEvent<HTMLInputElement>
+  ): void => {
+    setSize(parseInt(event.target.value, 10));
+    setPage(0);
+  };
+
+  const paginationProps = {
+    page,
+    size,
+    count,
+    handleChangePage,
+    handleChangeRowsPerPage,
   };
 
   React.useEffect(() => {
     search();
-  }, [page, limit]);
+  }, [page, size, orderBy, orderType]);
+
+  // Selection
+  const rowIds = React.useMemo(() => receipts.map((row) => row.id), [receipts]);
+  const { selectAll, deselectAll, selectOne, deselectOne, selected } =
+    useSelection(rowIds);
+
+  const selectionProps = {
+    selected,
+    selectOne,
+    deselectOne,
+    selectAll,
+    deselectAll,
+  };
+
+  // Daletions
+  const handleDeleteReceipt = async (ids: string[]) => {
+    try {
+      const { message } = await deleteReceipt({ ids });
+      if (message) {
+        console.log(message);
+      } else {
+        search();
+      }
+    } catch (error: any) {
+      console.log(error.response?.data.detail || error.message);
+    }
+  };
+
+  const deletionProps = {
+    handleDeleteReceipt,
+    selected,
+  };
 
   return (
     <Stack spacing={3}>
@@ -84,28 +139,16 @@ export default function ReceiptsPage({
       </Stack>
 
       <ReceiptsFilter
-        description={description}
-        setDescription={setDescription}
-        category={category}
-        setCategory={setCategory}
-        startDate={startDate}
-        setStartDate={setStartDate}
-        endDate={endDate}
-        setEndDate={setEndDate}
+        filterProps={filterProps}
+        deletionProps={deletionProps}
         doFilter={search}
       />
 
       <ReceiptsTable
-        count={count}
-        setPage={setPage}
-        setLimit={setLimit}
-        page={page}
+        paginationProps={paginationProps}
+        sortingProps={sortingProps}
+        selectionProps={selectionProps}
         rows={receipts}
-        limit={limit}
-        orderBy={orderBy}
-        orderType={orderType}
-        sortColumn={handleRequestSort}
-        deleteReceipt={handleDeleteReceipt}
         editReceipt={handleEdit}
       />
     </Stack>

@@ -1,4 +1,3 @@
-import { useSelection } from '@/hooks/use-selection';
 import { Receipt } from '@/types/receipt';
 import { ArrowForward } from '@mui/icons-material';
 import {
@@ -14,52 +13,45 @@ import {
   TableRow,
   TableSortLabel,
 } from '@mui/material';
+import dayjs from 'dayjs';
 import * as React from 'react';
 import { receiptsTableColumns } from './config';
+
 interface ReceiptsTableProps {
-  count: number;
+  paginationProps: {
+    page: number;
+    size: number;
+    count: number;
+    handleChangePage: (event: unknown, newPage: number) => void;
+    handleChangeRowsPerPage: (
+      event: React.ChangeEvent<HTMLInputElement>
+    ) => void;
+  };
+  sortingProps: {
+    orderBy?: string;
+    orderType?: 'asc' | 'desc';
+    handleRequestSort: (property: string) => void;
+  };
+  selectionProps: {
+    selectAll: () => void;
+    deselectAll: () => void;
+    selectOne: (id: string) => void;
+    deselectOne: (id: string) => void;
+    selected: Set<string>;
+  };
   rows: Receipt[];
-  page: number;
-  limit: number;
-  orderBy?: string;
-  orderType?: 'asc' | 'desc';
-  setPage: (page: number) => void;
-  setLimit: (limit: number) => void;
-  sortColumn: (property: string) => void;
-  deleteReceipt: (ids: string[]) => void;
   editReceipt: (id: string) => void;
 }
+
 export default function ReceiptsTable({
-  count = 0,
+  paginationProps,
+  sortingProps,
+  selectionProps,
   rows = [],
-  page = 0,
-  limit = 10,
-  orderBy,
-  orderType,
-  setPage,
-  setLimit,
-  sortColumn,
-  deleteReceipt,
   editReceipt,
 }: ReceiptsTableProps): React.JSX.Element {
-  const rowIds = React.useMemo(() => rows.map((row) => row.id), [rows]);
-
-  const { selectAll, deselectAll, selectOne, deselectOne, selected } =
-    useSelection(rowIds);
-
-  const selectedAll = selected.size === rowIds.length;
-  const selectedSome = selected.size > 0 && !selectedAll;
-
-  const handleChangePage = (event: unknown, newPage: number): void => {
-    setPage(newPage);
-  };
-
-  const handleChangeRowsPerPage = (
-    event: React.ChangeEvent<HTMLInputElement>
-  ): void => {
-    setLimit(parseInt(event.target.value, 10));
-    setPage(0);
-  };
+  const selectedAll = selectionProps.selected.size === rows.length;
+  const selectedSome = selectionProps.selected.size > 0 && !selectedAll;
 
   return (
     <Card className="flex-auto overflow-auto">
@@ -73,9 +65,9 @@ export default function ReceiptsTable({
                   indeterminate={selectedSome}
                   onChange={(e) => {
                     if (e.target.checked) {
-                      selectAll();
+                      selectionProps.selectAll();
                     } else {
-                      deselectAll();
+                      selectionProps.deselectAll();
                     }
                   }}
                 />
@@ -83,13 +75,21 @@ export default function ReceiptsTable({
               {receiptsTableColumns.map((column) => (
                 <TableCell
                   key={column.key}
-                  sortDirection={orderBy === column.key ? orderType : false}
+                  sortDirection={
+                    sortingProps.orderBy === column.key
+                      ? sortingProps.orderType
+                      : false
+                  }
                 >
                   {column.sorting ? (
                     <TableSortLabel
-                      active={orderBy === column.key}
-                      direction={orderBy === column.key ? orderType : 'asc'}
-                      onClick={() => sortColumn(column.key)}
+                      active={sortingProps.orderBy === column.key}
+                      direction={
+                        sortingProps.orderBy === column.key
+                          ? sortingProps.orderType
+                          : 'asc'
+                      }
+                      onClick={() => sortingProps.handleRequestSort(column.key)}
                     >
                       {column.label}
                     </TableSortLabel>
@@ -105,17 +105,17 @@ export default function ReceiptsTable({
               <TableRow key={row.id}>
                 <TableCell padding="checkbox">
                   <Checkbox
-                    checked={selected.has(row.id)}
+                    checked={selectionProps.selected.has(row.id)}
                     onChange={(e) => {
                       if (e.target.checked) {
-                        selectOne(row.id);
+                        selectionProps.selectOne(row.id);
                       } else {
-                        deselectOne(row.id);
+                        selectionProps.deselectOne(row.id);
                       }
                     }}
                   />
                 </TableCell>
-                <TableCell>{row.date}</TableCell>
+                <TableCell>{dayjs(row.date).format('YYYY-MM-DD')}</TableCell>
                 <TableCell>{row.description}</TableCell>
                 <TableCell>
                   <Chip label={row.category} variant="outlined"></Chip>
@@ -136,11 +136,11 @@ export default function ReceiptsTable({
       <TablePagination
         rowsPerPageOptions={[10, 25, 50]}
         component="div"
-        count={count}
-        rowsPerPage={limit}
-        page={page}
-        onPageChange={handleChangePage}
-        onRowsPerPageChange={handleChangeRowsPerPage}
+        count={paginationProps.count}
+        rowsPerPage={paginationProps.size}
+        page={paginationProps.page}
+        onPageChange={paginationProps.handleChangePage}
+        onRowsPerPageChange={paginationProps.handleChangeRowsPerPage}
       />
     </Card>
   );
