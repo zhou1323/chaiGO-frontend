@@ -16,10 +16,10 @@ export interface ApiResponseWithToken<T extends DataWithToken>
   data: T;
 }
 
-export interface PageResponse<T> extends BaseResponse {
-  data: {
-    items: T[];
-    total: number;
-    pages: number;
-  };
+export interface PageResponse<T> {
+  items: T[];
+  total: number; // total number of items.
+  pages: number; // total number of pages.
+  page: number; // current page number.
+  size: number; // number of items per page.
 }

@@ -1,6 +1,6 @@
 export interface ReceiptItem {
   discountPrice: number;
-  id: string;
+  id?: string;
   item: string;
   notes: string;
   quantity: number;

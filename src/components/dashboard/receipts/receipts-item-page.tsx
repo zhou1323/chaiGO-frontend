@@ -35,6 +35,7 @@ import {
   FieldPath,
   useFieldArray,
   useForm,
+  useWatch,
 } from 'react-hook-form';
 import { z as zod } from 'zod';
 import { categories } from './config';
@@ -44,19 +45,19 @@ const categoryValues: [string, string] = categories.map((c) => c.value) as [
 ];
 
 const schema = zod.object({
-  id: zod.string(),
-  date: zod.date(),
+  date: zod.string().date(),
   description: zod.string().min(1, { message: 'Description is required' }),
   category: zod.enum(categoryValues),
   notes: zod.string(),
   items: zod.array(
     zod.object({
-      id: zod.string(),
       item: zod.string().min(1, { message: 'Item is required' }),
-      quantity: zod.number().min(1, { message: 'Quantity is required' }),
+      quantity: zod.coerce.number().min(1, { message: 'Quantity is required' }),
       unit: zod.string().min(1, { message: 'Unit is required' }),
-      unitPrice: zod.number().min(0.01, { message: 'Unit price is required' }),
-      discountPrice: zod
+      unitPrice: zod.coerce
+        .number()
+        .min(0.01, { message: 'Unit price is required' }),
+      discountPrice: zod.coerce
         .number()
         .min(0, { message: 'Discount price is required' }),
       notes: zod.string(),
@@ -67,13 +68,21 @@ const schema = zod.object({
 type Values = zod.infer<typeof schema>;
 
 const defaultValues = {
-  id: '',
-  date: new Date(),
+  date: dayjs().format('YYYY-MM-DD'),
   description: '',
   category: categories[0].value,
   notes: '',
   items: [],
 } satisfies Values;
+
+const defaultItemValues = {
+  item: '',
+  quantity: 1,
+  unit: '',
+  unitPrice: 0.01,
+  discountPrice: 0,
+  notes: '',
+} as const;
 
 export default function ReceiptsItemPage({
   returnReceiptsList,
@@ -86,71 +95,37 @@ export default function ReceiptsItemPage({
   toAdd: boolean;
   toEdit: boolean;
 }): React.JSX.Element {
+  // Current receipt detail
   const [receiptDetail, setReceiptDetail] =
     React.useState<Values>(defaultValues);
-  const [editable, setEditable] = React.useState(toAdd);
   const [isPending, setIsPending] = React.useState(false);
 
-  const getReceiptDetail = async (id: string) => {
-    const { message, data } = await getReceiptById({ id });
-    if (message) {
-      console.log(message);
-    } else {
-      const formData = { ...data, date: new Date(data.date) } as Values;
-      setReceiptDetail(formData);
-    }
-  };
-
-  const addItem = () => {
-    const newItems = [...receiptDetail.items];
-    newItems.push({
-      id: '',
-      item: '',
-      quantity: 1,
-      unit: '',
-      unitPrice: 0,
-      discountPrice: 0,
-      notes: '',
-    });
-    setReceiptDetail({ ...receiptDetail, items: newItems });
-  };
-
-  const removeItem = (index: number) => () => {
-    const newItems = [...receiptDetail.items];
-    newItems.splice(index, 1);
-    setReceiptDetail({ ...receiptDetail, items: newItems });
-  };
-
+  // Control the editable state
+  const [editable, setEditable] = React.useState(toAdd);
   const cancelEdit = () => {
     setEditable(false);
     getReceiptDetail(receiptId);
   };
 
-  const onSubmit = async (values: Values) => {
+  // Get receipt detail
+  const getReceiptDetail = async (id: string) => {
     setIsPending(true);
     try {
-      const params = {
-        ...values,
-        date: dayjs(values.date).format('YYYY-MM-DD'),
-      };
-      let response;
-
-      if (toAdd) {
-        response = await createReceipt(params as CreateReceiptParams);
-      } else {
-        response = await updateReceipt(params as UpdateReceiptParams);
-      }
-
-      const { message, data } = response;
-
+      const { message, data } = await getReceiptById({ id });
       if (message) {
         console.log(message);
       } else {
-        const formData = { ...data, date: new Date(data.date) } as Values;
+        const formData = {
+          ...data,
+          date: dayjs(data?.date).format('YYYY-MM-DD'),
+        } as Values;
         setReceiptDetail(formData);
       }
-    } catch (error) {
-      console.error('An error occurred:', error);
+    } catch (error: any) {
+      console.error(
+        'An error occurred:',
+        error.response?.data.detail || error.message
+      );
       // Handle the error appropriately
     } finally {
       setIsPending(false);
@@ -163,10 +138,50 @@ export default function ReceiptsItemPage({
     }
   }, [receiptId]);
 
+  // Submit receipt
+  const onSubmit = async (values: Values) => {
+    setIsPending(true);
+    try {
+      const params = {
+        ...values,
+        date: dayjs(values.date).format('YYYY-MM-DD'), // Format date
+        amount: amount,
+      };
+      let response;
+
+      if (toAdd) {
+        response = await createReceipt(params as CreateReceiptParams);
+      } else {
+        response = await updateReceipt({
+          id: receiptId,
+          ...params,
+        } as UpdateReceiptParams);
+      }
+
+      const { message, data } = response;
+
+      if (message) {
+        console.log(message);
+      } else {
+        const formData = {
+          ...data,
+          date: dayjs(data?.date).format('YYYY-MM-DD'), // Format date
+        } as Values;
+        setReceiptDetail(formData);
+        setEditable(false);
+      }
+    } catch (error) {
+      console.error('An error occurred:', error);
+      // Handle the error appropriately
+    } finally {
+      setIsPending(false);
+    }
+  };
+
+  // table-related functions
   const {
     handleSubmit,
     control,
-    getValues,
     formState: { errors },
   } = useForm<Values>({
     defaultValues,
@@ -174,10 +189,20 @@ export default function ReceiptsItemPage({
     resolver: zodResolver(schema),
   });
 
-  const { fields } = useFieldArray({
+  const { fields, append, remove } = useFieldArray({
     control,
     name: 'items',
   });
+
+  const results = useWatch({
+    control,
+    name: 'items',
+  });
+
+  let amount = results.reduce(
+    (acc, item) => acc + item.quantity * item.discountPrice,
+    0
+  );
 
   return (
     <Stack spacing={2}>
@@ -358,70 +383,38 @@ export default function ReceiptsItemPage({
 
             {fields.map((field, index) => (
               <Stack key={field.id} spacing={3} direction="row">
-                <ReceiptItem
-                  control={control}
-                  name={`items.${index}.item`}
-                  label="Item"
-                  editable={editable}
-                  error={errors.items?.[index]?.item}
-                ></ReceiptItem>
-                <ReceiptItem
-                  control={control}
-                  name={`items.${index}.quantity`}
-                  label="Quantity"
-                  editable={editable}
-                  error={errors.items?.[index]?.quantity}
-                ></ReceiptItem>
-                <ReceiptItem
-                  control={control}
-                  name={`items.${index}.unit`}
-                  label="Unit"
-                  editable={editable}
-                  error={errors.items?.[index]?.unit}
-                ></ReceiptItem>
-                <ReceiptItem
-                  control={control}
-                  name={`items.${index}.unitPrice`}
-                  label="Unit price"
-                  editable={editable}
-                  error={errors.items?.[index]?.unitPrice}
-                ></ReceiptItem>
-                <ReceiptItem
-                  control={control}
-                  name={`items.${index}.discountPrice`}
-                  label="Discount price"
-                  editable={editable}
-                  error={errors.items?.[index]?.discountPrice}
-                ></ReceiptItem>
-                <FormControl
-                  size="small"
-                  disabled
-                  sx={{
-                    '& .MuiInputBase-input.Mui-disabled': {
-                      WebkitTextFillColor: '#000000',
-                    },
-                  }}
-                >
-                  <InputLabel>Amount</InputLabel>
-                  <OutlinedInput
-                    {...field}
-                    label="Amount"
-                    value={
-                      getValues().items[index].quantity *
-                      getValues().items[index].unitPrice
-                    }
-                    inputProps={{ maxLength: 20 }}
-                  />
-                </FormControl>
-                <ReceiptItem
-                  control={control}
-                  name={`items.${index}.notes`}
-                  label="Notes"
-                  editable={editable}
-                  error={errors.items?.[index]?.notes}
-                ></ReceiptItem>
+                {Object.keys(defaultItemValues).map((key) => {
+                  const newKey = key as keyof typeof defaultItemValues;
+                  return (
+                    <>
+                      {/* Add the amount column */}
+                      {key == 'notes' && (
+                        <ReceiptAmountItem
+                          key={field.id + 'amount'}
+                          control={control}
+                          index={index}
+                        ></ReceiptAmountItem>
+                      )}
+                      <ReceiptInputItem
+                        key={field.id + key}
+                        control={control}
+                        name={`items.${index}.${key}` as FieldPath<Values>}
+                        label={key}
+                        type={
+                          key === 'quantity' ||
+                          key === 'unitPrice' ||
+                          key === 'discountPrice'
+                            ? 'number'
+                            : 'text'
+                        }
+                        editable={editable}
+                        error={errors.items?.[index]?.[newKey]}
+                      ></ReceiptInputItem>
+                    </>
+                  );
+                })}
                 {editable && (
-                  <IconButton onClick={removeItem(index)}>
+                  <IconButton onClick={() => remove(index)}>
                     <Delete />
                   </IconButton>
                 )}
@@ -433,7 +426,7 @@ export default function ReceiptsItemPage({
                 variant="contained"
                 className="w-32"
                 startIcon={<Add />}
-                onClick={addItem}
+                onClick={() => append(defaultItemValues)}
               >
                 Add item
               </Button>
@@ -447,10 +440,7 @@ export default function ReceiptsItemPage({
               </Typography>
               <Typography variant="h6">
                 SEK &nbsp;
-                {receiptDetail.items.reduce(
-                  (acc, item) => acc + item.quantity * item.discountPrice,
-                  0
-                )}
+                {amount}
               </Typography>
             </Stack>
 
@@ -479,18 +469,51 @@ export default function ReceiptsItemPage({
   );
 }
 
-const ReceiptItem = ({
+const ReceiptAmountItem = ({
+  control,
+  index,
+}: {
+  control: Control<Values>;
+  index: number;
+}) => {
+  const data = useWatch({
+    control,
+    name: `items.${index}`,
+  });
+  return (
+    <FormControl
+      size="small"
+      disabled
+      sx={{
+        '& .MuiInputBase-input.Mui-disabled': {
+          WebkitTextFillColor: '#000000',
+        },
+      }}
+    >
+      <InputLabel>Amount</InputLabel>
+      <OutlinedInput
+        label="Amount"
+        value={data.quantity * data.discountPrice}
+        inputProps={{ maxLength: 20 }}
+      />
+    </FormControl>
+  );
+};
+
+const ReceiptInputItem = ({
   control,
   name,
   error,
   label,
   editable,
+  type,
 }: {
   control: Control<Values>;
   name: FieldPath<Values>;
   error: FieldError | undefined;
   label: string;
   editable: boolean;
+  type: 'text' | 'number';
 }) => {
   return (
     <Controller
@@ -511,6 +534,7 @@ const ReceiptItem = ({
           <OutlinedInput
             {...field}
             label={label}
+            type={type}
             inputProps={{ maxLength: 20 }}
           />
           {error && <FormHelperText>{error?.message}</FormHelperText>}

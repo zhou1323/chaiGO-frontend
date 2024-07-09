@@ -1,14 +1,15 @@
+import { PageRequest } from '@/types/apiRequest';
 import { ApiResponse, BaseResponse, PageResponse } from '@/types/apiResponse';
 import { Receipt } from '@/types/receipt';
 import request from '../request';
 
-export interface GetReceiptsListParams {
-  page: number;
-  limit: number;
+export interface GetReceiptsListParams extends PageRequest {
   description?: string;
   category?: string;
   startDate?: string;
   endDate?: string;
+  orderBy?: string;
+  orderType?: 'asc' | 'desc';
 }
 
 export interface GetReceiptParams {
@@ -28,17 +29,17 @@ export function getReceiptsList(
   return request({
     url: '/receipts/list',
     method: 'GET',
-    data,
+    params: data,
   });
 }
 
 export function getReceiptById(
   data: GetReceiptParams
 ): Promise<ApiResponse<Receipt>> {
+  const { id } = data;
   return request({
-    url: '/receipts',
+    url: `/receipts/${id}`,
     method: 'GET',
-    data,
   });
 }
 
@@ -55,8 +56,9 @@ export function createReceipt(
 export function updateReceipt(
   data: UpdateReceiptParams
 ): Promise<ApiResponse<Receipt>> {
+  const { id } = data;
   return request({
-    url: '/receipts',
+    url: `/receipts/${id}`,
     method: 'PUT',
     data,
   });
