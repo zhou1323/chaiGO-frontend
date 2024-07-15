@@ -1,0 +1,20 @@
+name: Trigger Deployment to Production
+
+on:
+  release:
+    types:
+      - published
+
+jobs:
+  trigger-deployment:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger deployment to Production
+        run: |
+          curl -X POST \
+          -H "Authorization: token ${{ secrets.ACCESS_TOKEN }}" \
+          -H "Accept: application/vnd.github.v3+json" \
+          https://api.github.com/repos/zhou1323/chaiGO/workflows/deploy-production.yml/dispatches \
+          -d '{"ref":"main"}'
+        env:
+          ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
