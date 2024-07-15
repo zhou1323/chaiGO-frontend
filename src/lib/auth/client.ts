@@ -42,7 +42,7 @@ export function signIn(
   // formData.append('captcha', captcha);
 
   return request({
-    url: '/auth/sign-in',
+    url: '/api/v1/auth/sign-in',
     method: 'POST',
     data: formData,
     headers: { 'Content-Type': 'multipart/form-data' },
@@ -51,7 +51,7 @@ export function signIn(
 
 export function signOut(data: SignOutParams): Promise<BaseResponse> {
   return request({
-    url: '/auth/sign-out',
+    url: '/api/v1/auth/sign-out',
     method: 'POST',
     data,
   });
@@ -59,7 +59,7 @@ export function signOut(data: SignOutParams): Promise<BaseResponse> {
 
 export function signUp(data: SignUpParams): Promise<BaseResponse> {
   return request({
-    url: '/auth/sign-up',
+    url: '/api/v1/auth/sign-up',
     method: 'POST',
     data,
   });
@@ -69,7 +69,7 @@ export function recoverPassword(
   data: revocerPasswordParam
 ): Promise<BaseResponse> {
   return request({
-    url: '/auth/recover-password',
+    url: '/api/v1/auth/recover-password',
     method: 'GET',
     params: data,
   });
@@ -77,7 +77,7 @@ export function recoverPassword(
 
 export function resetPassword(data: resetPasswordParam): Promise<BaseResponse> {
   return request({
-    url: '/auth/reset-password',
+    url: '/api/v1/auth/reset-password',
     method: 'POST',
     data,
   });
@@ -85,7 +85,7 @@ export function resetPassword(data: resetPasswordParam): Promise<BaseResponse> {
 
 export function getCaptcha(): Promise<ApiResponse<Captcha>> {
   return request({
-    url: '/auth/captcha',
+    url: '/api/v1/auth/captcha',
     method: 'GET',
   });
 }
