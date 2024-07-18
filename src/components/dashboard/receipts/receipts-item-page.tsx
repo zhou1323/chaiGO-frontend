@@ -1,5 +1,7 @@
 'use client';
 
+import ImageUpload from '@/components/core/image-upload';
+import { generatePresignedUrl } from '@/lib/auth/client';
 import {
   CreateReceiptParams,
   UpdateReceiptParams,
@@ -7,6 +9,7 @@ import {
   getReceiptById,
   updateReceipt,
 } from '@/lib/dashboard/receiptClient';
+import { ImageFile } from '@/types/imageFile';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Add, Delete, KeyboardReturn } from '@mui/icons-material';
 import {
@@ -26,6 +29,7 @@ import {
 } from '@mui/material';
 import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import axios from 'axios';
 import dayjs from 'dayjs';
 import * as React from 'react';
 import {
@@ -49,6 +53,7 @@ const schema = zod.object({
   description: zod.string().min(1, { message: 'Description is required' }),
   category: zod.enum(categoryValues),
   notes: zod.string(),
+  fileName: zod.string().optional(),
   items: zod.array(
     zod.object({
       item: zod.string().min(1, { message: 'Item is required' }),
@@ -72,6 +77,7 @@ const defaultValues = {
   description: '',
   category: categories[0].value,
   notes: '',
+  fileName: '',
   items: [],
 } satisfies Values;
 
@@ -107,6 +113,7 @@ export default function ReceiptsItemPage({
     getReceiptDetail(receiptId);
   };
 
+  const [images, setImages] = React.useState<ImageFile[]>([]);
   // Get receipt detail
   const getReceiptDetail = async (id: string) => {
     setIsPending(true);
@@ -118,8 +125,16 @@ export default function ReceiptsItemPage({
         const formData = {
           ...data,
           date: dayjs(data?.date).format('YYYY-MM-DD'),
+          fileName: data?.fileName,
         } as Values;
         setReceiptDetail(formData);
+        if (data?.fileName && data?.fileUrl) {
+          const file = {
+            name: data.fileName,
+            preview: data.fileUrl,
+          } as ImageFile;
+          setImages([file]);
+        }
       }
     } catch (error: any) {
       console.error(
@@ -138,14 +153,42 @@ export default function ReceiptsItemPage({
     }
   }, [receiptId]);
 
+  const uploadImage = async () => {
+    try {
+      // TODO: CHECK FILE MD5
+      if (images.length === 0 || images[0].name === receiptDetail.fileName) {
+        return Promise.resolve();
+      }
+      const { message, data } = await generatePresignedUrl({
+        fileName: images[0].name,
+      });
+      if (message) {
+        throw new Error(message);
+      }
+      if (data) {
+        return axios.put(data?.url, images[0], {
+          headers: {
+            'Content-Type': images[0].type,
+          },
+        });
+      }
+      return Promise.reject('No URL');
+    } catch (error: any) {
+      console.log(error.response?.data.detail || error.message);
+      return Promise.reject('No URL');
+    }
+  };
+
   // Submit receipt
   const onSubmit = async (values: Values) => {
     setIsPending(true);
     try {
+      await uploadImage();
       const params = {
         ...values,
         date: dayjs(values.date).format('YYYY-MM-DD'), // Format date
         amount: amount,
+        fileName: images[0]?.name,
       };
       let response;
 
@@ -222,158 +265,178 @@ export default function ReceiptsItemPage({
       </Stack>
       <Card>
         <form onSubmit={handleSubmit(onSubmit)}>
-          <Stack spacing={3} p={3}>
-            <Stack direction="row" spacing={3}>
-              <Stack className="basis-1/2">
-                {editable ? (
-                  <Controller
-                    name="date"
-                    control={control}
-                    render={({ field }) => (
-                      <FormControl error={Boolean(errors.date)} size="small">
-                        <LocalizationProvider dateAdapter={AdapterDayjs}>
-                          <DatePicker
-                            {...field}
-                            slotProps={{
-                              textField: { size: 'small' },
-                            }}
-                            label="Date"
-                            value={field.value ? dayjs(field.value) : null}
-                            onChange={(newValue) =>
-                              field.onChange(
-                                newValue?.format('YYYY-MM-DD') || ''
-                              )
-                            }
-                          />
-                        </LocalizationProvider>
-                        {errors.date && (
-                          <FormHelperText>{errors.date.message}</FormHelperText>
-                        )}
-                      </FormControl>
-                    )}
-                  />
-                ) : (
-                  <>
-                    <Typography variant="h6" className="font-semibold">
-                      Date
-                    </Typography>
-                    <Typography variant="h6">
-                      {dayjs(receiptDetail.date).format('YYYY-MM-DD')}
-                    </Typography>
-                  </>
-                )}
-              </Stack>
-
-              <Stack className="basis-1/2">
-                {editable ? (
-                  <Controller
-                    name="description"
-                    control={control}
-                    render={({ field }) => (
-                      <FormControl
-                        error={Boolean(errors.description)}
-                        size="small"
-                      >
-                        <InputLabel>Description</InputLabel>
-                        <OutlinedInput
-                          {...field}
-                          label="Description"
-                          inputProps={{ maxLength: 20 }}
-                        />
-                        {errors.description && (
-                          <FormHelperText>
-                            {errors.description.message}
-                          </FormHelperText>
-                        )}
-                      </FormControl>
-                    )}
-                  ></Controller>
-                ) : (
-                  <>
-                    <Typography variant="h6" className="font-semibold">
-                      Description
-                    </Typography>
-                    <Typography variant="h6">
-                      {receiptDetail.description}
-                    </Typography>
-                  </>
-                )}
-              </Stack>
-            </Stack>
-            <Stack direction="row" spacing={3}>
-              <Stack className="basis-1/2">
-                {editable ? (
-                  <Controller
-                    name="category"
-                    control={control}
-                    render={({ field }) => (
-                      <FormControl
-                        error={Boolean(errors.category)}
-                        size="small"
-                      >
-                        <InputLabel>Category</InputLabel>
-                        <Select {...field} label="Category" variant="outlined">
-                          {categories.map((category) => (
-                            <MenuItem
-                              key={category.value}
-                              value={category.value}
-                            >
-                              {category.label}
-                            </MenuItem>
-                          ))}
-                        </Select>
-                        {errors.category && (
-                          <FormHelperText>
-                            {errors.category.message}
-                          </FormHelperText>
-                        )}
-                      </FormControl>
-                    )}
-                  ></Controller>
-                ) : (
-                  <>
-                    <Typography variant="h6" className="font-semibold">
-                      Category
-                    </Typography>
-                    <Chip
-                      label={receiptDetail.category}
-                      variant="outlined"
-                      className="mt-1 w-40"
+          <Stack
+            direction={'row'}
+            spacing={3}
+            p={3}
+            justifyContent="space-between"
+          >
+            <Stack spacing={3} p={3} className="flex-1">
+              <Stack direction="row" spacing={3}>
+                <Stack className="basis-1/2">
+                  {editable ? (
+                    <Controller
+                      name="date"
+                      control={control}
+                      render={({ field }) => (
+                        <FormControl error={Boolean(errors.date)} size="small">
+                          <LocalizationProvider dateAdapter={AdapterDayjs}>
+                            <DatePicker
+                              {...field}
+                              slotProps={{
+                                textField: { size: 'small' },
+                              }}
+                              label="Date"
+                              value={field.value ? dayjs(field.value) : null}
+                              onChange={(newValue) =>
+                                field.onChange(
+                                  newValue?.format('YYYY-MM-DD') || ''
+                                )
+                              }
+                            />
+                          </LocalizationProvider>
+                          {errors.date && (
+                            <FormHelperText>
+                              {errors.date.message}
+                            </FormHelperText>
+                          )}
+                        </FormControl>
+                      )}
                     />
-                  </>
-                )}
+                  ) : (
+                    <>
+                      <Typography variant="h6" className="font-semibold">
+                        Date
+                      </Typography>
+                      <Typography variant="h6">
+                        {dayjs(receiptDetail.date).format('YYYY-MM-DD')}
+                      </Typography>
+                    </>
+                  )}
+                </Stack>
+
+                <Stack className="basis-1/2">
+                  {editable ? (
+                    <Controller
+                      name="description"
+                      control={control}
+                      render={({ field }) => (
+                        <FormControl
+                          error={Boolean(errors.description)}
+                          size="small"
+                        >
+                          <InputLabel>Description</InputLabel>
+                          <OutlinedInput
+                            {...field}
+                            label="Description"
+                            inputProps={{ maxLength: 20 }}
+                          />
+                          {errors.description && (
+                            <FormHelperText>
+                              {errors.description.message}
+                            </FormHelperText>
+                          )}
+                        </FormControl>
+                      )}
+                    ></Controller>
+                  ) : (
+                    <>
+                      <Typography variant="h6" className="font-semibold">
+                        Description
+                      </Typography>
+                      <Typography variant="h6">
+                        {receiptDetail.description}
+                      </Typography>
+                    </>
+                  )}
+                </Stack>
               </Stack>
-              <Stack className="basis-1/2">
-                {editable ? (
-                  <Controller
-                    name="notes"
-                    control={control}
-                    render={({ field }) => (
-                      <FormControl error={Boolean(errors.notes)} size="small">
-                        <InputLabel>Notes</InputLabel>
-                        <OutlinedInput
-                          {...field}
-                          label="Notes"
-                          inputProps={{ maxLength: 40 }}
-                        />
-                        {errors.notes && (
-                          <FormHelperText>
-                            {errors.notes.message}
-                          </FormHelperText>
-                        )}
-                      </FormControl>
-                    )}
-                  ></Controller>
-                ) : (
-                  <>
-                    <Typography variant="h6" className="font-semibold">
-                      Notes
-                    </Typography>
-                    <Typography variant="h6">{receiptDetail.notes}</Typography>
-                  </>
-                )}
+              <Stack direction="row" spacing={3}>
+                <Stack className="basis-1/2">
+                  {editable ? (
+                    <Controller
+                      name="category"
+                      control={control}
+                      render={({ field }) => (
+                        <FormControl
+                          error={Boolean(errors.category)}
+                          size="small"
+                        >
+                          <InputLabel>Category</InputLabel>
+                          <Select
+                            {...field}
+                            label="Category"
+                            variant="outlined"
+                          >
+                            {categories.map((category) => (
+                              <MenuItem
+                                key={category.value}
+                                value={category.value}
+                              >
+                                {category.label}
+                              </MenuItem>
+                            ))}
+                          </Select>
+                          {errors.category && (
+                            <FormHelperText>
+                              {errors.category.message}
+                            </FormHelperText>
+                          )}
+                        </FormControl>
+                      )}
+                    ></Controller>
+                  ) : (
+                    <>
+                      <Typography variant="h6" className="font-semibold">
+                        Category
+                      </Typography>
+                      <Chip
+                        label={receiptDetail.category}
+                        variant="outlined"
+                        className="mt-1 w-40"
+                      />
+                    </>
+                  )}
+                </Stack>
+                <Stack className="basis-1/2">
+                  {editable ? (
+                    <Controller
+                      name="notes"
+                      control={control}
+                      render={({ field }) => (
+                        <FormControl error={Boolean(errors.notes)} size="small">
+                          <InputLabel>Notes</InputLabel>
+                          <OutlinedInput
+                            {...field}
+                            label="Notes"
+                            inputProps={{ maxLength: 40 }}
+                          />
+                          {errors.notes && (
+                            <FormHelperText>
+                              {errors.notes.message}
+                            </FormHelperText>
+                          )}
+                        </FormControl>
+                      )}
+                    ></Controller>
+                  ) : (
+                    <>
+                      <Typography variant="h6" className="font-semibold">
+                        Notes
+                      </Typography>
+                      <Typography variant="h6">
+                        {receiptDetail.notes}
+                      </Typography>
+                    </>
+                  )}
+                </Stack>
               </Stack>
             </Stack>
+            <ImageUpload
+              images={images}
+              setImages={setImages}
+              editable={editable}
+            ></ImageUpload>
           </Stack>
           <Divider />
           <Stack spacing={3} p={3}>

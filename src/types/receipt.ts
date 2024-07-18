@@ -14,5 +14,7 @@ export interface Receipt {
   description: string;
   id: string;
   notes: string;
+  fileName?: string;
+  fileUrl?: string;
   items?: ReceiptItem[];
 }

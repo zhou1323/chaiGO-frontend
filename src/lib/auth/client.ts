@@ -5,6 +5,7 @@ import {
   BaseResponse,
 } from '@/types/apiResponse';
 import { Captcha } from '@/types/captcha';
+import { CloudfrontCookie } from '@/types/cookie';
 import { UserWithToken } from '@/types/user';
 
 export interface SignInParams {
@@ -30,6 +31,10 @@ export interface revocerPasswordParam {
 export interface resetPasswordParam {
   newPassword: string;
   token: string;
+}
+
+export interface GeneratePresignedUrlParams {
+  fileName: string;
 }
 
 export function signIn(
@@ -87,5 +92,25 @@ export function getCaptcha(): Promise<ApiResponse<Captcha>> {
   return request({
     url: '/api/v1/auth/captcha',
     method: 'GET',
+  });
+}
+
+export function generatePresignedUrl(
+  data: GeneratePresignedUrlParams
+): Promise<ApiResponse<{ url: string }>> {
+  return request({
+    url: '/api/v1/auth/aws/generate-presigned-url',
+    method: 'GET',
+    params: data,
+  });
+}
+
+export function generatePresignedCookie(): Promise<
+  ApiResponse<CloudfrontCookie>
+> {
+  return request({
+    url: '/api/v1/auth/aws/generate-presigned-cookie',
+    method: 'GET',
+    withCredentials: true,
   });
 }
