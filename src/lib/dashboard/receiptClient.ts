@@ -23,6 +23,10 @@ export interface UpdateReceiptParams extends Receipt {}
 
 export type CreateReceiptParams = Omit<UpdateReceiptParams, 'id'>;
 
+export interface CreateReceiptsByUploadParams {
+  files: { fileName?: string; fileUrl?: string }[];
+}
+
 export function getReceiptsList(
   data: GetReceiptsListParams
 ): Promise<PageResponse<Receipt>> {
@@ -70,6 +74,16 @@ export function deleteReceipt(
   return request({
     url: '/api/v1/receipts',
     method: 'DELETE',
+    data,
+  });
+}
+
+export function createReceiptsByUpload(
+  data: CreateReceiptsByUploadParams
+): Promise<BaseResponse> {
+  return request({
+    url: '/api/v1/receipts/create-receipts-by-upload',
+    method: 'POST',
     data,
   });
 }

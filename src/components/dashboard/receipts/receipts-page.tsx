@@ -2,11 +2,20 @@
 import ReceiptsFilter from '@/components/dashboard/receipts/receipts-filter';
 import ReceiptsTable from '@/components/dashboard/receipts/receipts-table';
 import { useSelection } from '@/hooks/use-selection';
-import { deleteReceipt, getReceiptsList } from '@/lib/dashboard/receiptClient';
+import { generatePresignedUrl } from '@/lib/auth/client';
+import {
+  createReceiptsByUpload,
+  CreateReceiptsByUploadParams,
+  deleteReceipt,
+  getReceiptsList,
+} from '@/lib/dashboard/receiptClient';
+import { ImageFile } from '@/types/imageFile';
 import { Receipt, ReceiptFilterParams } from '@/types/receipt';
 import { Add, FileDownload, FileUpload } from '@mui/icons-material';
 import { Button, Stack, Typography } from '@mui/material';
+import axios from 'axios';
 import * as React from 'react';
+import UploadDialog from './upload-dialog';
 
 export default function ReceiptsPage({
   handleAdd,
@@ -119,6 +128,69 @@ export default function ReceiptsPage({
     selected,
   };
 
+  // Upload picture
+  const [openUploadDialog, setOpenUploadDialog] = React.useState(false);
+
+  const handleUploadClose = () => {
+    setOpenUploadDialog(false);
+  };
+
+  const getUploadPresignedUrl = async (fileName: string) => {
+    try {
+      const { message, data } = await generatePresignedUrl({ fileName });
+      if (message) {
+        throw new Error(message);
+      }
+      return data?.url;
+    } catch (error: any) {
+      console.log(error.response?.data.detail || error.message);
+    }
+  };
+
+  const handleUpload = async (files: ImageFile[]) => {
+    if (files.length === 0) return Promise.resolve();
+
+    const uploadPromises = files.map(async (file: File) => {
+      return getUploadPresignedUrl(file.name).then((url) => {
+        if (!url) return Promise.reject('No URL');
+
+        return axios.put(url, file, {
+          headers: {
+            'Content-Type': file.type,
+          },
+        });
+      });
+    });
+
+    return Promise.all(uploadPromises)
+      .then((values) => {
+        const createdFiles = values.map((value, index) => {
+          return {
+            fileName: files[index].name,
+          };
+        });
+        createReceiptsByUpload({
+          files: createdFiles,
+        } as CreateReceiptsByUploadParams);
+      })
+      .then(() => {
+        handleUploadClose();
+        search();
+      })
+      .catch((error) => {
+        console.log(
+          'Upload failed',
+          error.response?.data.detail || error.message
+        );
+      });
+  };
+
+  const uploadProps = {
+    openUploadDialog,
+    handleUploadClose,
+    handleUpload,
+  };
+
   return (
     <Stack spacing={3}>
       <Stack direction="row" spacing={3}>
@@ -126,7 +198,11 @@ export default function ReceiptsPage({
           <Typography variant="h4">Receipts</Typography>
         </Stack>
         <Stack direction="row" spacing={1}>
-          <Button startIcon={<FileUpload />} color="inherit">
+          <Button
+            startIcon={<FileUpload />}
+            color="inherit"
+            onClick={() => setOpenUploadDialog(true)}
+          >
             Upload
           </Button>
           <Button startIcon={<FileDownload />} color="inherit">
@@ -151,6 +227,8 @@ export default function ReceiptsPage({
         rows={receipts}
         editReceipt={handleEdit}
       />
+
+      <UploadDialog uploadProps={uploadProps} />
     </Stack>
   );
 }
