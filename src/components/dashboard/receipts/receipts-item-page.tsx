@@ -57,7 +57,7 @@ const schema = zod.object({
   items: zod.array(
     zod.object({
       item: zod.string().min(1, { message: 'Item is required' }),
-      quantity: zod.coerce.number().min(1, { message: 'Quantity is required' }),
+      quantity: zod.coerce.number().min(0, { message: 'Quantity is required' }),
       unit: zod.string().min(1, { message: 'Unit is required' }),
       unitPrice: zod.coerce
         .number()
@@ -503,7 +503,7 @@ export default function ReceiptsItemPage({
               </Typography>
               <Typography variant="h6">
                 SEK &nbsp;
-                {amount}
+                {amount.toFixed(2)}
               </Typography>
             </Stack>
 
@@ -556,7 +556,7 @@ const ReceiptAmountItem = ({
       <InputLabel>Amount</InputLabel>
       <OutlinedInput
         label="Amount"
-        value={data.quantity * data.discountPrice}
+        value={(data.quantity * data.discountPrice).toFixed(2)}
         inputProps={{ maxLength: 20 }}
       />
     </FormControl>
