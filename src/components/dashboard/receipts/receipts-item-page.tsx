@@ -329,7 +329,7 @@ export default function ReceiptsItemPage({
                           <OutlinedInput
                             {...field}
                             label="Description"
-                            inputProps={{ maxLength: 20 }}
+                            inputProps={{ maxLength: 100 }}
                           />
                           {errors.description && (
                             <FormHelperText>
@@ -409,7 +409,7 @@ export default function ReceiptsItemPage({
                           <OutlinedInput
                             {...field}
                             label="Notes"
-                            inputProps={{ maxLength: 40 }}
+                            inputProps={{ maxLength: 100 }}
                           />
                           {errors.notes && (
                             <FormHelperText>
@@ -472,6 +472,9 @@ export default function ReceiptsItemPage({
                         }
                         editable={editable}
                         error={errors.items?.[index]?.[newKey]}
+                        maxLength={
+                          key === 'item' ? 50 : key === 'notes' ? 100 : 20
+                        }
                       ></ReceiptInputItem>
                     </>
                   );
@@ -557,7 +560,6 @@ const ReceiptAmountItem = ({
       <OutlinedInput
         label="Amount"
         value={(data.quantity * data.discountPrice).toFixed(2)}
-        inputProps={{ maxLength: 20 }}
       />
     </FormControl>
   );
@@ -570,6 +572,7 @@ const ReceiptInputItem = ({
   label,
   editable,
   type,
+  maxLength = 20,
 }: {
   control: Control<Values>;
   name: FieldPath<Values>;
@@ -577,6 +580,7 @@ const ReceiptInputItem = ({
   label: string;
   editable: boolean;
   type: 'text' | 'number';
+  maxLength?: number;
 }) => {
   return (
     <Controller
@@ -598,7 +602,7 @@ const ReceiptInputItem = ({
             {...field}
             label={label}
             type={type}
-            inputProps={{ maxLength: 20 }}
+            inputProps={{ maxLength: maxLength }}
           />
           {error && <FormHelperText>{error?.message}</FormHelperText>}
         </FormControl>
