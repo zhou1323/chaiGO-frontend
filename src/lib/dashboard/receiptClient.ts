@@ -1,16 +1,16 @@
 import { PageRequest } from '@/types/apiRequest';
 import { ApiResponse, BaseResponse, PageResponse } from '@/types/apiResponse';
-import { Receipt } from '@/types/receipt';
+import {
+  Receipt,
+  ReceiptFilterParams,
+  ReceiptSortingParams,
+} from '@/types/receipt';
 import request from '../request';
 
-export interface GetReceiptsListParams extends PageRequest {
-  description?: string;
-  category?: string;
-  startDate?: string;
-  endDate?: string;
-  orderBy?: string;
-  orderType?: 'asc' | 'desc';
-}
+export interface GetReceiptsListParams
+  extends PageRequest,
+    ReceiptFilterParams,
+    ReceiptSortingParams {}
 
 export interface GetReceiptParams {
   id: string;

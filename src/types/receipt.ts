@@ -7,6 +7,11 @@ export interface ReceiptFilterParams {
   endDate?: string;
 }
 
+export interface ReceiptSortingParams {
+  orderBy?: string;
+  orderType?: 'asc' | 'desc';
+}
+
 export interface Receipt {
   amount?: number;
   category: string;
