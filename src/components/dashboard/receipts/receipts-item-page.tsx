@@ -53,7 +53,7 @@ const schema = zod.object({
   description: zod.string().min(1, { message: 'Description is required' }),
   category: zod.enum(categoryValues),
   notes: zod.string(),
-  fileName: zod.string().optional(),
+  fileName: zod.string().nullable().optional(),
   items: zod.array(
     zod.object({
       item: zod.string().min(1, { message: 'Item is required' }),
