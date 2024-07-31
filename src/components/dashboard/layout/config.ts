@@ -1,6 +1,7 @@
 import { paths } from '@/paths';
 import {
   Assessment,
+  Leaderboard,
   Receipt,
   Settings,
   SvgIconComponent,
@@ -19,6 +20,12 @@ export const navItems = [
     label: 'Overview',
     path: paths.dashboard.overview,
     icon: Assessment,
+  },
+  {
+    key: 'budgets',
+    label: 'Budgets',
+    path: paths.dashboard.budgets,
+    icon: Leaderboard,
   },
   {
     key: 'receipts',

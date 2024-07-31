@@ -12,3 +12,20 @@ export function convertToCamel<T>(data: T): T {
   }
   return newData as T;
 }
+
+export function weeksLeftInMonth(): number {
+  const today = new Date();
+
+  const year = today.getFullYear();
+  const month = today.getMonth();
+
+  const lastDayOfMonth = new Date(year, month + 1, 0);
+
+  const dayOfWeek = today.getDay();
+
+  const daysLeftInMonth = lastDayOfMonth.getDate() - today.getDate();
+
+  const weeksLeft = Math.ceil((daysLeftInMonth + (7 - dayOfWeek)) / 7);
+
+  return weeksLeft;
+}

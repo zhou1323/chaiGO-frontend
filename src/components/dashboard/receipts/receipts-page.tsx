@@ -14,6 +14,7 @@ import { Receipt, ReceiptFilterParams } from '@/types/receipt';
 import { Add, FileDownload, FileUpload } from '@mui/icons-material';
 import { Button, Stack, Typography } from '@mui/material';
 import axios from 'axios';
+import { useSearchParams } from 'next/navigation';
 import * as React from 'react';
 import UploadDialog from './upload-dialog';
 
@@ -46,7 +47,11 @@ export default function ReceiptsPage({
   };
 
   // Params to filter receipts
-  const [filter, setFilter] = React.useState({} as ReceiptFilterParams);
+  const params = useSearchParams();
+  const [filter, setFilter] = React.useState({
+    startDate: params.get('startDate') || undefined,
+    endDate: params.get('endDate') || undefined,
+  } as ReceiptFilterParams);
 
   const filterProps = {
     filter,
