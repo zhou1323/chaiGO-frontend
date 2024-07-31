@@ -1,6 +1,6 @@
 import { paths } from '@/paths';
 import axios from 'axios';
-import Router from 'next/router';
+import { useRouter } from 'next/navigation';
 import { getToken, removeToken } from './token';
 import { convertToCamel } from './utils';
 
@@ -30,6 +30,8 @@ request.interceptors.response.use(
   (error) => {
     if (error.response?.status === 401) {
       removeToken();
+
+      const Router = useRouter();
       Router.replace(paths.auth.signIn);
     }
     return Promise.reject(error);
