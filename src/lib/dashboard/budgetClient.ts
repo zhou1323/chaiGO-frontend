@@ -4,6 +4,7 @@ import {
   Budget,
   BudgetFilterParams,
   BudgetSortingParams,
+  BudgetsOverview,
 } from '@/types/budgets';
 import request from '../request';
 
@@ -58,6 +59,13 @@ export function updateBudget(data: UpdateBudgetParams): Promise<BaseResponse> {
 export function getBudgetsCurrent(): Promise<ApiResponse<Budget>> {
   return request({
     url: '/api/v1/budgets/current',
+    method: 'GET',
+  });
+}
+
+export function getBudgetsOverview(): Promise<ApiResponse<BudgetsOverview[]>> {
+  return request({
+    url: '/api/v1/budgets/overview',
     method: 'GET',
   });
 }
