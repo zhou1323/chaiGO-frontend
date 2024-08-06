@@ -18,4 +18,8 @@ export interface Budget {
   notes: string;
 }
 
-export interface CurrentBudgetSummary extends Budget {}
+export interface BudgetsOverview {
+  month: string;
+  currentYear: Budget;
+  lastYear: Budget;
+}
