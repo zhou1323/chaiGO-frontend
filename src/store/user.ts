@@ -15,6 +15,7 @@ interface UserState {
   signIn: (params: SignInParams) => Promise<{ user?: User; message?: string }>;
   signOut: (params: SignOutParams) => Promise<{ message?: string }>;
   signUp: (params: SignUpParams) => Promise<{ message?: string }>;
+  updateUser: (user: User) => void;
 }
 
 const useUserStore = create<UserState>()(
@@ -68,6 +69,8 @@ const useUserStore = create<UserState>()(
           return { message: error.response?.data.detail || error.message };
         }
       },
+
+      updateUser: (user: User) => set({ user }),
     }),
     {
       name: 'userStore',
