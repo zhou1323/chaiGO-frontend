@@ -11,10 +11,10 @@ import {
   Box,
   Button,
   FormControl,
-  FormHelperText,
   InputLabel,
   OutlinedInput,
   Stack,
+  TextField,
   Typography,
 } from '@mui/material';
 import Link from '@mui/material/Link';
@@ -108,35 +108,40 @@ export default function SignInPage() {
   }, []);
 
   return (
-    <Stack spacing={4}>
+    <Stack spacing={1}>
       <Stack spacing={1}>
-        <Typography variant="h4">Sign in</Typography>
-        <Typography variant="body2" color="text.secondary">
+        <Typography variant="h4" className="font-bold">
+          Welcome
+        </Typography>
+        <Typography variant="body2" className="text-gray-500">
           Don&apos;t have an account?{' '}
-          <Link
-            component={RouterLink}
-            href={paths.auth.signUp}
-            underline="hover"
-            variant="subtitle2"
-          >
+          <Link component={RouterLink} href={paths.auth.signUp} variant="body2">
             Sign up
           </Link>
         </Typography>
       </Stack>
 
-      <form onSubmit={handleSubmit(onSubmit)}>
-        <Stack spacing={2}>
+      <form>
+        <Stack spacing={2} className="py-4">
           <Controller
             control={control}
             name="email"
             render={({ field }) => (
-              <FormControl error={Boolean(errors.email)}>
-                <InputLabel>Email address</InputLabel>
-                <OutlinedInput {...field} label="Email Address" type="email" />
-                {errors.email && (
-                  <FormHelperText>{errors.email.message}</FormHelperText>
-                )}
-              </FormControl>
+              <Box>
+                <Typography variant="subtitle1" className="mb-2">
+                  Email
+                </Typography>
+                <TextField
+                  {...field}
+                  fullWidth
+                  hiddenLabel
+                  size="small"
+                  placeholder="Enter your email"
+                  type="email"
+                  error={!!errors.email}
+                  helperText={errors.email?.message}
+                ></TextField>
+              </Box>
             )}
           ></Controller>
 
@@ -144,34 +149,54 @@ export default function SignInPage() {
             control={control}
             name="password"
             render={({ field }) => (
-              <FormControl error={Boolean(errors.password)}>
-                <InputLabel>Password</InputLabel>
-                <OutlinedInput
+              <Box>
+                <Box className="flex justify-between">
+                  <Typography variant="subtitle1" className="mb-2">
+                    Password
+                  </Typography>
+
+                  <Link
+                    component={RouterLink}
+                    href={paths.auth.forgotPassword}
+                    variant="subtitle2"
+                  >
+                    Forgot password?
+                  </Link>
+                </Box>
+                <TextField
                   {...field}
-                  endAdornment={
-                    showPassword ? (
-                      <VisibilityOutlinedIcon
-                        cursor="pointer"
-                        onClick={() => {
-                          setShowPassword(false);
-                        }}
-                      />
-                    ) : (
-                      <VisibilityOffOutlinedIcon
-                        cursor="pointer"
-                        onClick={() => {
-                          setShowPassword(true);
-                        }}
-                      />
-                    )
-                  }
-                  label="Password"
+                  fullWidth
+                  hiddenLabel
+                  size="small"
+                  placeholder="Enter your password"
                   type={showPassword ? 'text' : 'password'}
-                ></OutlinedInput>
-                {errors.password && (
-                  <FormHelperText>{errors.password.message}</FormHelperText>
-                )}
-              </FormControl>
+                  error={!!errors.password}
+                  helperText={errors.password?.message}
+                  InputProps={
+                    showPassword
+                      ? {
+                          endAdornment: (
+                            <VisibilityOutlinedIcon
+                              cursor="pointer"
+                              onClick={() => {
+                                setShowPassword(false);
+                              }}
+                            />
+                          ),
+                        }
+                      : {
+                          endAdornment: (
+                            <VisibilityOffOutlinedIcon
+                              cursor="pointer"
+                              onClick={() => {
+                                setShowPassword(true);
+                              }}
+                            />
+                          ),
+                        }
+                  }
+                ></TextField>
+              </Box>
             )}
           ></Controller>
 
@@ -205,23 +230,17 @@ export default function SignInPage() {
             )}
           </Stack>
 
-          <Box>
-            <Link
-              component={RouterLink}
-              href={paths.auth.forgotPassword}
-              variant="subtitle2"
-            >
-              Forgot password?
-            </Link>
-          </Box>
-
           {errors.root && <Alert severity="error">{errors.root.message}</Alert>}
-
-          <Button disabled={isPending} type="submit" variant="contained">
-            Sign in
-          </Button>
         </Stack>
       </form>
+      <Button
+        disabled={isPending}
+        variant="contained"
+        color="primary"
+        onClick={handleSubmit(onSubmit)}
+      >
+        Sign in
+      </Button>
     </Stack>
   );
 }
