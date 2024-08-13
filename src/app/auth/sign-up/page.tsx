@@ -2,16 +2,7 @@
 import { paths } from '@/paths';
 import useUserStore from '@/store/user';
 import { zodResolver } from '@hookform/resolvers/zod';
-import {
-  Alert,
-  Button,
-  FormControl,
-  FormHelperText,
-  InputLabel,
-  OutlinedInput,
-  Stack,
-  Typography,
-} from '@mui/material';
+import { Alert, Button, Stack, TextField, Typography } from '@mui/material';
 import Link from '@mui/material/Link';
 import RouterLink from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -62,11 +53,13 @@ export default function SignUpPage() {
   };
 
   return (
-    <Stack spacing={4}>
+    <Stack spacing={1}>
       <Stack spacing={1}>
-        <Typography variant="h4">Sign up</Typography>
-        <Typography variant="body2" color="text.secondary">
-          Already have an account?&nbsp;
+        <Typography variant="h4" className="font-bold">
+          Sign up
+        </Typography>
+        <Typography variant="body2" className="text-gray-500">
+          Already have an account?{' '}
           <Link
             component={RouterLink}
             href={paths.auth.signIn}
@@ -78,19 +71,19 @@ export default function SignUpPage() {
         </Typography>
       </Stack>
 
-      <form onSubmit={handleSubmit(onSubmit)}>
-        <Stack spacing={2}>
+      <form>
+        <Stack spacing={3} className="py-4">
           <Controller
             name="username"
             control={control}
             render={({ field }) => (
-              <FormControl error={Boolean(errors.username)}>
-                <InputLabel>Username</InputLabel>
-                <OutlinedInput {...field} label="Username" />
-                {errors.username && (
-                  <FormHelperText>{errors.username.message}</FormHelperText>
-                )}
-              </FormControl>
+              <TextField
+                {...field}
+                size="small"
+                label="Username"
+                error={!!errors.username}
+                helperText={errors.username?.message}
+              ></TextField>
             )}
           ></Controller>
 
@@ -98,13 +91,14 @@ export default function SignUpPage() {
             name="email"
             control={control}
             render={({ field }) => (
-              <FormControl error={Boolean(errors.email)}>
-                <InputLabel>Email address</InputLabel>
-                <OutlinedInput {...field} label="Email address" type="email" />
-                {errors.email && (
-                  <FormHelperText>{errors.email.message}</FormHelperText>
-                )}
-              </FormControl>
+              <TextField
+                {...field}
+                size="small"
+                label="Email address"
+                type="email"
+                error={!!errors.email}
+                helperText={errors.email?.message}
+              ></TextField>
             )}
           ></Controller>
 
@@ -112,23 +106,27 @@ export default function SignUpPage() {
             name="password"
             control={control}
             render={({ field }) => (
-              <FormControl error={Boolean(errors.password)}>
-                <InputLabel>Password</InputLabel>
-                <OutlinedInput {...field} label="Password" type="password" />
-                {errors.password && (
-                  <FormHelperText>{errors.password.message}</FormHelperText>
-                )}
-              </FormControl>
+              <TextField
+                {...field}
+                size="small"
+                label="Password"
+                type="password"
+                error={!!errors.password}
+                helperText={errors.password?.message}
+              ></TextField>
             )}
           ></Controller>
 
           {errors.root && <Alert severity="error">{errors.root.message}</Alert>}
-
-          <Button disabled={isPending} type="submit" variant="contained">
-            Sign up
-          </Button>
         </Stack>
       </form>
+      <Button
+        disabled={isPending}
+        variant="contained"
+        onClick={handleSubmit(onSubmit)}
+      >
+        Sign up
+      </Button>
     </Stack>
   );
 }

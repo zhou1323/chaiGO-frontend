@@ -6,12 +6,9 @@ import { ArrowBack } from '@mui/icons-material';
 import {
   Alert,
   Button,
-  FormControl,
-  FormHelperText,
   IconButton,
-  InputLabel,
-  OutlinedInput,
   Stack,
+  TextField,
   Typography,
 } from '@mui/material';
 import { useRouter } from 'next/navigation';
@@ -62,7 +59,7 @@ export default function ForgotPasswordPage() {
     }
   };
   return (
-    <Stack spacing={4}>
+    <Stack spacing={1}>
       <Stack direction="row" spacing={1}>
         <IconButton
           onClick={() => router.push(paths.auth.signIn)}
@@ -70,38 +67,45 @@ export default function ForgotPasswordPage() {
         >
           <ArrowBack />
         </IconButton>
-        <Typography variant="h6" color="grey">
+        <Typography variant="body1" className="text-gray-500">
           Sign in
         </Typography>
       </Stack>
-      <Typography variant="h4">Reset password</Typography>
+      <Typography variant="h4" className="font-bold">
+        Reset password
+      </Typography>
 
       {!hasSent ? (
-        <form onSubmit={handleSubmit(onSubmit)}>
-          <Stack spacing={2}>
-            <Controller
-              control={control}
-              name="email"
-              render={({ field }) => (
-                <FormControl error={Boolean(errors.email)}>
-                  <InputLabel>Email address</InputLabel>
-                  <OutlinedInput
+        <>
+          <form>
+            <Stack spacing={3} className="py-4">
+              <Controller
+                control={control}
+                name="email"
+                render={({ field }) => (
+                  <TextField
                     {...field}
                     label="Email address"
                     type="email"
-                  />
-                  {errors.email && (
-                    <FormHelperText>{errors.email.message}</FormHelperText>
-                  )}
-                </FormControl>
+                    size="small"
+                    error={!!errors.email}
+                    helperText={errors.email?.message}
+                  ></TextField>
+                )}
+              />
+              {errors.root && (
+                <Alert severity="error">{errors.root.message}</Alert>
               )}
-            />
-            {errors.root && <Alert color="error">{errors.root.message}</Alert>}
-            <Button type="submit" variant="contained" disabled={isPending}>
-              Send recovery link
-            </Button>
-          </Stack>
-        </form>
+            </Stack>
+          </form>
+          <Button
+            onClick={handleSubmit(onSubmit)}
+            variant="contained"
+            disabled={isPending}
+          >
+            Send recovery link
+          </Button>
+        </>
       ) : (
         <Typography variant="body1">
           We have sent an email with a password reset link to your registered
