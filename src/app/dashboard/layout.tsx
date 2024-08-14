@@ -10,14 +10,12 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 
   return (
     <AuthGuard>
-      <Box className="flex flex-row">
+      <Box className="flex h-full">
         <SideNav open={navOpen} onClose={() => setNavOpen(false)} />
-        <Box
-          className={`flex flex-auto flex-col pl-0 ${navOpen ? 'lg:pl-60' : ''}`}
-        >
+        <Box className="flex flex-auto flex-col">
           <MainNav handleNavOpen={() => setNavOpen(!navOpen)} />
-          <main>
-            <Container maxWidth={false} className="py-10">
+          <main className="flex-auto">
+            <Container maxWidth={false} className="h-full bg-gray-50 p-6">
               {children}
             </Container>
           </main>

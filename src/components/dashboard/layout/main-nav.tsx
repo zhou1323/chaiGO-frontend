@@ -1,7 +1,7 @@
 'use client';
 import { usePopover } from '@/hooks/use-popover';
 import useUserStore from '@/store/user';
-import { List, Logout, Person, Settings, Translate } from '@mui/icons-material';
+import { List, Logout, Person, Settings } from '@mui/icons-material';
 
 import { paths } from '@/paths';
 import {
@@ -45,13 +45,9 @@ export default function MainNav({
   return (
     <Box
       component="header"
-      className="sticky top-0 z-10 border-x-0 border-b-2 border-t-0 border-solid border-gray-200 bg-white"
+      className="sticky top-0 z-10 h-16 bg-white px-6 py-3 shadow"
     >
-      <Stack
-        direction="row"
-        spacing={2}
-        className="min-h-[64px] items-center justify-between px-4"
-      >
+      <Stack direction="row" className="items-center justify-between">
         <Stack direction="row" spacing={1} className="items-center">
           <IconButton onClick={handleNavOpen}>
             <List />
@@ -59,11 +55,11 @@ export default function MainNav({
         </Stack>
 
         <Stack direction="row" spacing={1} className="items-center">
-          <Tooltip title="">
+          {/* <Tooltip title="">
             <IconButton>
               <Translate />
             </IconButton>
-          </Tooltip>
+          </Tooltip> */}
 
           <Tooltip
             title=""

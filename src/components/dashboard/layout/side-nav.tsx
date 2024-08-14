@@ -1,6 +1,7 @@
 'use client';
 import {
   Box,
+  Divider,
   Drawer,
   List,
   ListItemButton,
@@ -11,6 +12,7 @@ import {
 import { useTheme } from '@mui/material/styles';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import { usePathname, useRouter } from 'next/navigation';
+import React from 'react';
 import { NavItemProps, navItems } from './config';
 
 const renderNavItems = (items: NavItemProps[]) => {
@@ -30,8 +32,12 @@ const NavItem = ({ path, icon, label }: NavItemProps) => {
     <ListItemButton
       selected={pathName === path}
       onClick={() => router.replace(path)}
+      className="mb-1 h-10 rounded-lg text-gray-300 hover:bg-white/10"
+      classes={{ selected: 'bg-white/10 text-emerald-500' }}
     >
-      <ListItemIcon>
+      <ListItemIcon
+        className={pathName === path ? 'text-emerald-500' : 'text-gray-300'}
+      >
         <Icon />
       </ListItemIcon>
       <ListItemText>{label}</ListItemText>
@@ -48,24 +54,40 @@ export default function SideNav({
 }): React.JSX.Element {
   const theme = useTheme();
   const isPC = useMediaQuery(theme.breakpoints.up('lg'));
+
+  React.useEffect(() => {
+    onClose();
+  }, [isPC]);
+
   return (
     <Box>
       <Drawer
         variant={isPC ? 'persistent' : 'temporary'}
         open={open}
         onClose={onClose}
-        PaperProps={{ className: 'w-60' }}
+        PaperProps={{ className: 'w-60 py-6 bg-gray-900' }}
+        className={
+          open
+            ? 'ease-[0.4, 0, 0.6, 1] w-60 transition-[width] duration-[195ms]'
+            : 'w-0 transition-[width] duration-[225ms] ease-out'
+        }
+        ModalProps={{
+          keepMounted: true, // Better open performance on mobile.
+        }}
       >
-        <Stack>
-          <Box className="min-h-16">
+        <Stack spacing={3}>
+          <Box className="flex justify-center px-4">
             <Box
               component="img"
               alt="logo"
-              className="h-16"
+              className="h-10 opacity-80"
               src="/assets/logo.png"
             ></Box>
           </Box>
-          <Box component="nav">{renderNavItems(navItems)}</Box>
+          <Divider className="bg-gray-800" />
+          <Box component="nav" className="px-4">
+            {renderNavItems(navItems)}
+          </Box>
         </Stack>
       </Drawer>
     </Box>
