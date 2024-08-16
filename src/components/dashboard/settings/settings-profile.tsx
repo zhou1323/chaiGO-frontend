@@ -1,7 +1,18 @@
 import { updateUserMe } from '@/lib/dashboard/userClient';
 import useUserStore from '@/store/user';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Button, Stack, TextField, Typography } from '@mui/material';
+import {
+  Box,
+  Button,
+  Card,
+  CardActions,
+  CardContent,
+  CardHeader,
+  Divider,
+  Stack,
+  TextField,
+  Typography,
+} from '@mui/material';
 import * as React from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { z as zod } from 'zod';
@@ -57,90 +68,100 @@ export default function SettingsProfile() {
   };
 
   return (
-    <Stack spacing={3}>
-      <Typography className="font-bold" variant="h6">
-        User Information
-      </Typography>
-
-      <form>
-        <Stack spacing={1}>
-          <Typography className="font-bold">Username</Typography>
-          <Controller
-            control={control}
-            name="username"
-            render={({ field }) =>
-              toSet ? (
-                <TextField
-                  {...field}
-                  hiddenLabel
-                  className="w-72"
-                  size="small"
-                  variant="outlined"
-                  error={!!errors.username}
-                  helperText={errors.username?.message}
-                />
-              ) : (
-                <>
-                  <Typography className="h-10 leading-10">
-                    {user?.username}
-                  </Typography>
-                </>
-              )
-            }
-          />
-          <Typography className="font-bold">Email address</Typography>
-          <Controller
-            control={control}
-            name="email"
-            render={({ field }) =>
-              toSet ? (
-                <TextField
-                  {...field}
-                  hiddenLabel
-                  className="w-72"
-                  size="small"
-                  variant="outlined"
-                  error={!!errors.email}
-                  helperText={errors.email?.message}
-                />
-              ) : (
-                <>
-                  <Typography className="h-10 leading-10">
-                    {user?.email}
-                  </Typography>
-                </>
-              )
-            }
-          />
-        </Stack>
-      </form>
-      {toSet ? (
-        <Stack direction="row" spacing={2}>
+    <Card className="w-1/2">
+      <CardHeader title="User Information" />
+      <Divider />
+      <CardContent>
+        <form>
+          <Stack spacing={2}>
+            <Box>
+              <Typography className="font-bold">Username</Typography>
+              <Controller
+                control={control}
+                name="username"
+                render={({ field }) =>
+                  toSet ? (
+                    <TextField
+                      {...field}
+                      hiddenLabel
+                      className="w-72"
+                      size="small"
+                      variant="outlined"
+                      error={!!errors.username}
+                      helperText={errors.username?.message}
+                    />
+                  ) : (
+                    <>
+                      <Typography className="h-10 leading-10">
+                        {user?.username}
+                      </Typography>
+                    </>
+                  )
+                }
+              />
+            </Box>
+            <Box>
+              <Typography className="font-bold">Email address</Typography>
+              <Controller
+                control={control}
+                name="email"
+                render={({ field }) =>
+                  toSet ? (
+                    <TextField
+                      {...field}
+                      hiddenLabel
+                      className="w-72"
+                      size="small"
+                      variant="outlined"
+                      error={!!errors.email}
+                      helperText={errors.email?.message}
+                    />
+                  ) : (
+                    <>
+                      <Typography className="h-10 leading-10">
+                        {user?.email}
+                      </Typography>
+                    </>
+                  )
+                }
+              />
+            </Box>
+          </Stack>
+        </form>
+      </CardContent>
+      <Divider />
+      <CardActions className="justify-end px-4 py-2">
+        {toSet ? (
+          <Stack direction="row" spacing={2}>
+            <Button
+              className="w-20"
+              type="button"
+              size="small"
+              variant="outlined"
+              onClick={onCancel}
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="contained"
+              className="w-20"
+              size="small"
+              onClick={handleSubmit(onSubmit)}
+            >
+              Save
+            </Button>
+          </Stack>
+        ) : (
           <Button
+            className="inline w-20"
             variant="contained"
-            className="w-20"
-            onClick={handleSubmit(onSubmit)}
+            size="small"
+            onClick={() => setToSet(true)}
           >
-            Save
+            Edit
           </Button>
-          <Button
-            className="w-20"
-            type="button"
-            variant="contained"
-            onClick={onCancel}
-          >
-            Cancel
-          </Button>
-        </Stack>
-      ) : (
-        <Button
-          className="inline w-20"
-          variant="contained"
-          onClick={() => setToSet(true)}
-        >
-          Edit
-        </Button>
-      )}
-    </Stack>
+        )}
+      </CardActions>
+    </Card>
   );
 }

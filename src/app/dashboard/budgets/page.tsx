@@ -109,9 +109,9 @@ export default function BudgetPage() {
 
   return (
     <>
-      <Stack spacing={3}>
-        <Stack direction="row">
-          <Typography variant="h4" className="flex-auto">
+      <Stack spacing={2}>
+        <Stack direction="row" alignItems="center">
+          <Typography variant="h4" className="flex-1 font-bold">
             Budgets
           </Typography>
           <Button startIcon={<Add />} variant="contained" onClick={addBudget}>

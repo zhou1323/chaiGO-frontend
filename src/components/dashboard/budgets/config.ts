@@ -19,7 +19,7 @@ export const budgetTableColumns = [
   {
     key: 'otherExpense',
     label: 'Other Expense',
-    align: 'right',
+    align: 'left',
     sorting: true,
   },
   {

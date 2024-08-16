@@ -9,10 +9,12 @@ import {
   getReceiptById,
   updateReceipt,
 } from '@/lib/dashboard/receiptClient';
+import useCustomizationStore from '@/store/customization';
 import { ImageFile } from '@/types/imageFile';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Add, Delete, KeyboardReturn } from '@mui/icons-material';
 import {
+  Box,
   Button,
   Card,
   Chip,
@@ -20,11 +22,15 @@ import {
   FormControl,
   FormHelperText,
   IconButton,
-  InputLabel,
   MenuItem,
-  OutlinedInput,
   Select,
   Stack,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableRow,
+  TextField,
   Typography,
 } from '@mui/material';
 import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
@@ -87,6 +93,7 @@ const defaultItemValues = {
   unit: '',
   unitPrice: 0.01,
   discountPrice: 0,
+  amount: 0,
   notes: '',
 } as const;
 
@@ -247,46 +254,64 @@ export default function ReceiptsItemPage({
     0
   );
 
+  const getCurrencyString = useCustomizationStore(
+    (state) => state.getCurrencyString
+  );
+
   return (
     <Stack spacing={2}>
-      <Stack direction="row" spacing={1} alignItems="center">
+      <Stack direction="row" spacing={0} alignItems="center">
         <IconButton onClick={returnReceiptsList}>
           <KeyboardReturn></KeyboardReturn>
         </IconButton>
         <Typography variant="h6">Receipts</Typography>
       </Stack>
-      <Stack direction="row" justifyContent="space-between">
-        <Typography variant="h4">Receipt detail</Typography>
+      <Stack direction="row" justifyContent="space-between" alignItems="center">
+        <Typography variant="h5" className="font-bold">
+          Receipt detail
+        </Typography>
         {toEdit && (
           <Button variant="contained" onClick={() => setEditable(true)}>
             Edit
           </Button>
         )}
       </Stack>
-      <Card>
+      <Card className="rounded-lg bg-white p-4 shadow">
         <form onSubmit={handleSubmit(onSubmit)}>
-          <Stack
-            direction={'row'}
-            spacing={3}
-            p={3}
-            justifyContent="space-between"
-          >
-            <Stack spacing={3} p={3} className="flex-1">
+          <Stack direction={'row'} spacing={6} justifyContent="space-between">
+            <Stack spacing={3} className="flex-1">
               <Stack direction="row" spacing={3}>
-                <Stack className="basis-1/2">
+                {/* Date */}
+                <Stack
+                  className="basis-1/2"
+                  direction="row"
+                  alignItems="center"
+                  spacing={1}
+                >
+                  <Typography
+                    variant="subtitle1"
+                    className="min-w-24 font-semibold"
+                  >
+                    Date
+                  </Typography>
                   {editable ? (
                     <Controller
                       name="date"
                       control={control}
                       render={({ field }) => (
-                        <FormControl error={Boolean(errors.date)} size="small">
+                        <FormControl
+                          error={Boolean(errors.date)}
+                          size="small"
+                          className="flex-auto"
+                        >
                           <LocalizationProvider dateAdapter={AdapterDayjs}>
                             <DatePicker
                               {...field}
                               slotProps={{
-                                textField: { size: 'small' },
+                                textField: {
+                                  size: 'small',
+                                },
                               }}
-                              label="Date"
                               value={field.value ? dayjs(field.value) : null}
                               onChange={(newValue) =>
                                 field.onChange(
@@ -304,55 +329,25 @@ export default function ReceiptsItemPage({
                       )}
                     />
                   ) : (
-                    <>
-                      <Typography variant="h6" className="font-semibold">
-                        Date
-                      </Typography>
-                      <Typography variant="h6">
-                        {dayjs(receiptDetail.date).format('YYYY-MM-DD')}
-                      </Typography>
-                    </>
+                    <Typography variant="body1">
+                      {dayjs(receiptDetail.date).format('YYYY-MM-DD')}
+                    </Typography>
                   )}
                 </Stack>
 
-                <Stack className="basis-1/2">
-                  {editable ? (
-                    <Controller
-                      name="description"
-                      control={control}
-                      render={({ field }) => (
-                        <FormControl
-                          error={Boolean(errors.description)}
-                          size="small"
-                        >
-                          <InputLabel>Description</InputLabel>
-                          <OutlinedInput
-                            {...field}
-                            label="Description"
-                            inputProps={{ maxLength: 100 }}
-                          />
-                          {errors.description && (
-                            <FormHelperText>
-                              {errors.description.message}
-                            </FormHelperText>
-                          )}
-                        </FormControl>
-                      )}
-                    ></Controller>
-                  ) : (
-                    <>
-                      <Typography variant="h6" className="font-semibold">
-                        Description
-                      </Typography>
-                      <Typography variant="h6">
-                        {receiptDetail.description}
-                      </Typography>
-                    </>
-                  )}
-                </Stack>
-              </Stack>
-              <Stack direction="row" spacing={3}>
-                <Stack className="basis-1/2">
+                {/* Category */}
+                <Stack
+                  className="basis-1/2"
+                  direction="row"
+                  alignItems="center"
+                  spacing={1}
+                >
+                  <Typography
+                    variant="subtitle1"
+                    className="min-w-24 font-semibold"
+                  >
+                    Category
+                  </Typography>
                   {editable ? (
                     <Controller
                       name="category"
@@ -361,13 +356,9 @@ export default function ReceiptsItemPage({
                         <FormControl
                           error={Boolean(errors.category)}
                           size="small"
+                          className="flex-auto"
                         >
-                          <InputLabel>Category</InputLabel>
-                          <Select
-                            {...field}
-                            label="Category"
-                            variant="outlined"
-                          >
+                          <Select {...field} variant="outlined">
                             {categories.map((category) => (
                               <MenuItem
                                 key={category.value}
@@ -386,107 +377,159 @@ export default function ReceiptsItemPage({
                       )}
                     ></Controller>
                   ) : (
+                    <Chip label={receiptDetail.category} variant="outlined" />
+                  )}
+                </Stack>
+              </Stack>
+              <Stack direction="row" spacing={3} alignItems="start">
+                {/* Description */}
+                <Stack
+                  className="basis-1/2"
+                  direction="row"
+                  alignItems="center"
+                  spacing={1}
+                >
+                  <Typography
+                    variant="subtitle1"
+                    className="min-w-24 font-semibold"
+                  >
+                    Description
+                  </Typography>
+                  {editable ? (
+                    <Controller
+                      name="description"
+                      control={control}
+                      render={({ field }) => (
+                        <TextField
+                          {...field}
+                          hiddenLabel
+                          size="small"
+                          className="flex-auto"
+                          error={!!errors.description}
+                          helperText={errors.description?.message}
+                        />
+                      )}
+                    ></Controller>
+                  ) : (
                     <>
-                      <Typography variant="h6" className="font-semibold">
-                        Category
+                      <Typography variant="body1">
+                        {receiptDetail.description}
                       </Typography>
-                      <Chip
-                        label={receiptDetail.category}
-                        variant="outlined"
-                        className="mt-1 w-40"
-                      />
                     </>
                   )}
                 </Stack>
-                <Stack className="basis-1/2">
+
+                {/* Notes */}
+                <Stack className="basis-1/2" direction="row" spacing={1}>
+                  <Typography
+                    variant="subtitle1"
+                    className="min-w-24 font-semibold"
+                  >
+                    Notes
+                  </Typography>
                   {editable ? (
                     <Controller
                       name="notes"
                       control={control}
                       render={({ field }) => (
-                        <FormControl error={Boolean(errors.notes)} size="small">
-                          <InputLabel>Notes</InputLabel>
-                          <OutlinedInput
-                            {...field}
-                            label="Notes"
-                            inputProps={{ maxLength: 100 }}
-                          />
-                          {errors.notes && (
-                            <FormHelperText>
-                              {errors.notes.message}
-                            </FormHelperText>
-                          )}
-                        </FormControl>
+                        <TextField
+                          {...field}
+                          hiddenLabel
+                          size="small"
+                          multiline
+                          maxRows={4}
+                          className="flex-auto"
+                          error={!!errors.notes}
+                          helperText={errors.notes?.message}
+                        />
                       )}
                     ></Controller>
                   ) : (
-                    <>
-                      <Typography variant="h6" className="font-semibold">
-                        Notes
-                      </Typography>
-                      <Typography variant="h6">
-                        {receiptDetail.notes}
-                      </Typography>
-                    </>
+                    <Typography variant="body1">
+                      {receiptDetail.notes}
+                    </Typography>
                   )}
                 </Stack>
               </Stack>
             </Stack>
-            <ImageUpload
-              images={images}
-              setImages={setImages}
-              editable={editable}
-            ></ImageUpload>
+            {images.length === 0 && !editable ? (
+              <Box component="img" className="invisible h-48 w-48" />
+            ) : (
+              <ImageUpload
+                images={images}
+                setImages={setImages}
+                editable={editable}
+              ></ImageUpload>
+            )}
           </Stack>
-          <Divider />
-          <Stack spacing={3} p={3}>
+          <Divider className="my-4" />
+          <Stack spacing={2}>
             <Typography variant="h6" className="font-semibold">
               Items
             </Typography>
 
-            {fields.map((field, index) => (
-              <Stack key={field.id} spacing={3} direction="row">
-                {Object.keys(defaultItemValues).map((key) => {
-                  const newKey = key as keyof typeof defaultItemValues;
-                  return (
-                    <>
-                      {/* Add the amount column */}
-                      {key == 'notes' && (
-                        <ReceiptAmountItem
-                          key={field.id + 'amount'}
-                          control={control}
-                          index={index}
-                        ></ReceiptAmountItem>
-                      )}
-                      <ReceiptInputItem
-                        key={field.id + key}
-                        control={control}
-                        name={`items.${index}.${key}` as FieldPath<Values>}
-                        label={key}
-                        type={
-                          key === 'quantity' ||
-                          key === 'unitPrice' ||
-                          key === 'discountPrice'
-                            ? 'number'
-                            : 'text'
-                        }
-                        editable={editable}
-                        error={errors.items?.[index]?.[newKey]}
-                        maxLength={
-                          key === 'item' ? 50 : key === 'notes' ? 100 : 20
-                        }
-                      ></ReceiptInputItem>
-                    </>
-                  );
-                })}
-                {editable && (
-                  <IconButton onClick={() => remove(index)}>
-                    <Delete />
-                  </IconButton>
-                )}
-              </Stack>
-            ))}
+            <Table>
+              <TableHead>
+                <TableRow>
+                  {Object.keys(defaultItemValues).map((column) => (
+                    <TableCell key={column} className="font-bold">
+                      {column
+                        .replace(/([A-Z])/g, ' $1')
+                        .replace(/^./, (str) => str.toUpperCase())}
+                    </TableCell>
+                  ))}
 
+                  {editable && <TableCell></TableCell>}
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {fields.map((field, index) => (
+                  <TableRow key={field.id}>
+                    {Object.keys(defaultItemValues).map((key) => {
+                      const newKey = key as keyof typeof defaultItemValues;
+                      return (
+                        <TableCell key={field.id + key}>
+                          {/* Add the amount column */}
+                          {newKey == 'amount' ? (
+                            <ReceiptAmountItem
+                              control={control}
+                              index={index}
+                            ></ReceiptAmountItem>
+                          ) : (
+                            <ReceiptInputItem
+                              control={control}
+                              name={
+                                `items.${index}.${key}` as FieldPath<Values>
+                              }
+                              label={key}
+                              type={
+                                key === 'quantity' ||
+                                key === 'unitPrice' ||
+                                key === 'discountPrice'
+                                  ? 'number'
+                                  : 'text'
+                              }
+                              editable={editable}
+                              error={errors.items?.[index]?.[newKey]}
+                              maxLength={
+                                key === 'item' ? 50 : key === 'notes' ? 100 : 20
+                              }
+                            ></ReceiptInputItem>
+                          )}
+                        </TableCell>
+                      );
+                    })}
+                    {editable && (
+                      <TableCell>
+                        <IconButton onClick={() => remove(index)}>
+                          <Delete />
+                        </IconButton>
+                      </TableCell>
+                    )}
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
             {editable && (
               <Button
                 variant="contained"
@@ -498,23 +541,19 @@ export default function ReceiptsItemPage({
               </Button>
             )}
           </Stack>
-          <Divider />
-          <Stack>
-            <Stack direction="row" spacing={3} p={3} justifyContent="right">
+          <Stack alignItems="end" spacing={6} paddingTop={3}>
+            <Stack direction="row" spacing={10}>
               <Typography variant="h6" className="font-semibold">
                 Total
               </Typography>
-              <Typography variant="h6">
-                SEK &nbsp;
-                {amount.toFixed(2)}
-              </Typography>
+              <Typography variant="h6">{getCurrencyString(amount)}</Typography>
             </Stack>
 
-            <Stack direction="row" spacing={3} p={3} justifyContent="right">
+            <Stack direction="row" spacing={3}>
               {editable && (
                 <>
                   {toEdit && (
-                    <Button variant="contained" onClick={cancelEdit}>
+                    <Button variant="outlined" onClick={cancelEdit}>
                       Cancel
                     </Button>
                   )}
@@ -547,21 +586,9 @@ const ReceiptAmountItem = ({
     name: `items.${index}`,
   });
   return (
-    <FormControl
-      size="small"
-      disabled
-      sx={{
-        '& .MuiInputBase-input.Mui-disabled': {
-          WebkitTextFillColor: '#000000',
-        },
-      }}
-    >
-      <InputLabel>Amount</InputLabel>
-      <OutlinedInput
-        label="Amount"
-        value={(data.quantity * data.discountPrice).toFixed(2)}
-      />
-    </FormControl>
+    <Typography variant="body1">
+      {(data.quantity * data.discountPrice).toFixed(2)}
+    </Typography>
   );
 };
 
@@ -586,27 +613,22 @@ const ReceiptInputItem = ({
     <Controller
       name={name}
       control={control}
-      render={({ field }) => (
-        <FormControl
-          error={Boolean(error)}
-          size="small"
-          disabled={!editable}
-          sx={{
-            '& .MuiInputBase-input.Mui-disabled': {
-              WebkitTextFillColor: '#000000',
-            },
-          }}
-        >
-          <InputLabel>{label}</InputLabel>
-          <OutlinedInput
+      render={({ field }) =>
+        editable ? (
+          <TextField
             {...field}
-            label={label}
-            type={type}
             inputProps={{ maxLength: maxLength }}
+            hiddenLabel
+            size="small"
+            error={!!error}
+            placeholder={label}
+            type={type}
+            helperText={error?.message}
           />
-          {error && <FormHelperText>{error?.message}</FormHelperText>}
-        </FormControl>
-      )}
+        ) : (
+          <Typography variant="body1">{field.value?.toString()}</Typography>
+        )
+      }
     ></Controller>
   );
 };

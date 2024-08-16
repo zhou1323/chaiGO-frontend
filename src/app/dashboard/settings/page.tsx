@@ -16,13 +16,14 @@ function CustomTabPanel(props: TabPanelProps) {
 
   return (
     <div
+      className="w-full"
       role="tabpanel"
       hidden={value !== index}
       id={`simple-tabpanel-${index}`}
       aria-labelledby={`simple-tab-${index}`}
       {...other}
     >
-      {value === index && <Box sx={{ p: 3 }}>{children}</Box>}
+      {value === index && <Box>{children}</Box>}
     </div>
   );
 }
@@ -35,26 +36,34 @@ export default function SettingPage() {
   };
 
   return (
-    <Stack spacing={3}>
+    <Stack spacing={2} alignItems="start">
       <Stack direction="row">
-        <Typography variant="h4" className="flex-auto">
+        <Typography variant="h4" className="flex-auto font-bold">
           Settings
         </Typography>
       </Stack>
-      <Box sx={{ width: '100%' }}>
-        <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
-          <Tabs value={value} onChange={handleChange}>
-            <Tab label="Profile" />
-            <Tab label="Password" />
-          </Tabs>
-        </Box>
-        <CustomTabPanel value={value} index={0}>
-          <SettingsProfile></SettingsProfile>
-        </CustomTabPanel>
-        <CustomTabPanel value={value} index={1}>
-          <SettingsPassword></SettingsPassword>
-        </CustomTabPanel>
+      <Box className="h-10 rounded-md bg-zinc-100 p-1">
+        <Tabs
+          value={value}
+          onChange={handleChange}
+          TabIndicatorProps={{ className: 'hidden' }}
+        >
+          {['Profile', 'Password'].map((label, index) => (
+            <Tab
+              key={index}
+              label={label}
+              disableRipple
+              className={`min-h-8 min-w-20 rounded-sm px-3 py-1.5 text-sm font-semibold normal-case ${value === index ? 'bg-white text-[#09090b]' : 'bg-transparent text-[#71717a]'}`}
+            />
+          ))}
+        </Tabs>
       </Box>
+      <CustomTabPanel value={value} index={0}>
+        <SettingsProfile></SettingsProfile>
+      </CustomTabPanel>
+      <CustomTabPanel value={value} index={1}>
+        <SettingsPassword></SettingsPassword>
+      </CustomTabPanel>
     </Stack>
   );
 }

@@ -1,7 +1,10 @@
+import { paths } from '@/paths';
+import useCustomizationStore from '@/store/customization';
 import { Budget } from '@/types/budgets';
 import {
   Button,
   Card,
+  Link,
   Table,
   TableBody,
   TableCell,
@@ -11,7 +14,7 @@ import {
   TableRow,
   TableSortLabel,
 } from '@mui/material';
-import Link from 'next/link';
+import RouterLink from 'next/link';
 import { budgetTableColumns } from './config';
 
 interface BudgetTableProps {
@@ -55,11 +58,15 @@ export default function BudgetTable({
     };
   };
 
+  const getCurrencyString = useCustomizationStore(
+    (state) => state.getCurrencyString
+  );
+
   return (
-    <Card>
+    <Card className="rounded-lg shadow">
       <TableContainer>
         <Table>
-          <TableHead>
+          <TableHead className="bg-gray-100">
             <TableRow>
               {budgetTableColumns.map((column) => (
                 <TableCell
@@ -69,6 +76,7 @@ export default function BudgetTable({
                       ? sortingProps.orderType
                       : false
                   }
+                  className="font-bold"
                 >
                   {column.sorting ? (
                     <TableSortLabel
@@ -94,20 +102,25 @@ export default function BudgetTable({
               rows.map((row) => (
                 <TableRow key={row.id}>
                   <TableCell>{row.date}</TableCell>
-                  <TableCell>{row.budget}</TableCell>
+                  <TableCell>{getCurrencyString(row.budget)}</TableCell>
                   <TableCell>
                     <Link
-                      href={`/dashboard/receipts?startDate=${getFirstAndLastDateOfMonth(row.date).firstDate}&endDate=${getFirstAndLastDateOfMonth(row.date).lastDate}`}
+                      component={RouterLink}
+                      href={
+                        paths.dashboard.receipts +
+                        `?startDate=${getFirstAndLastDateOfMonth(row.date).firstDate}&endDate=${getFirstAndLastDateOfMonth(row.date).lastDate}`
+                      }
+                      variant="body2"
                     >
-                      {row.recordedExpense}
+                      {getCurrencyString(row.recordedExpense)}
                     </Link>
                   </TableCell>
-                  <TableCell>{row.otherExpense}</TableCell>
-                  <TableCell>{row.surplus}</TableCell>
+                  <TableCell>{getCurrencyString(row.otherExpense)}</TableCell>
+                  <TableCell>{getCurrencyString(row.surplus)}</TableCell>
                   <TableCell>{row.notes}</TableCell>
                   <TableCell>
                     <Button
-                      variant="contained"
+                      variant="text"
                       onClick={() => selectBudget({ ...row })}
                     >
                       Edit

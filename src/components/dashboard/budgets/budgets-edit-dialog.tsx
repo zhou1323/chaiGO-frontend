@@ -7,6 +7,7 @@ import {
 } from '@/lib/dashboard/budgetClient';
 import { Budget } from '@/types/budgets';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { Close } from '@mui/icons-material';
 import {
   Button,
   Dialog,
@@ -15,15 +16,23 @@ import {
   DialogTitle,
   FormControl,
   FormHelperText,
-  InputLabel,
-  OutlinedInput,
-  Stack,
+  Grid,
+  IconButton,
+  TextField,
+  Typography,
 } from '@mui/material';
 import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import dayjs from 'dayjs';
 import * as React from 'react';
-import { Controller, useForm, useWatch } from 'react-hook-form';
+import {
+  Control,
+  Controller,
+  FieldError,
+  FieldPath,
+  useForm,
+  useWatch,
+} from 'react-hook-form';
 import { z as zod } from 'zod';
 interface BudgetsEditDialogProps {
   open: boolean;
@@ -37,7 +46,9 @@ const schema = zod.object({
     message: "Invalid month format. Expected format is 'YYYY-MM'.",
   }),
   budget: zod.coerce.number().nonnegative(),
+  recordedExpense: zod.coerce.number().nonnegative(),
   otherExpense: zod.coerce.number().nonnegative(),
+  surplus: zod.coerce.number().nonnegative(),
   notes: zod.string().optional(),
 });
 
@@ -46,7 +57,9 @@ type Values = zod.infer<typeof schema>;
 const defaultValues: Values = {
   date: dayjs().format('YYYY-MM'),
   budget: 0,
+  recordedExpense: 0,
   otherExpense: 0,
+  surplus: 0,
   notes: '',
 };
 
@@ -71,10 +84,7 @@ export default function BudgetsEditDialog({
     if (!open) return;
     if (selectedBudget) {
       reset({
-        date: selectedBudget.date,
-        budget: selectedBudget.budget,
-        otherExpense: selectedBudget.otherExpense,
-        notes: selectedBudget.notes,
+        ...selectedBudget,
       });
     } else {
       reset({ ...defaultValues });
@@ -126,117 +136,139 @@ export default function BudgetsEditDialog({
   };
 
   return (
-    <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
-      <DialogTitle>Edit Budget</DialogTitle>
-      <DialogContent className="py-3">
+    <Dialog open={open} onClose={() => onClose(false)} maxWidth="sm" fullWidth>
+      <DialogTitle className="p-4">Edit Budget</DialogTitle>
+      <IconButton
+        onClick={() => onClose(false)}
+        className="absolute right-4 top-4"
+      >
+        <Close />
+      </IconButton>
+      <DialogContent className="p-4" dividers>
         <form>
-          <Stack spacing={2}>
-            <Controller
-              name="date"
-              control={control}
-              render={({ field }) => (
-                <FormControl error={Boolean(errors.date)} size="small">
-                  <LocalizationProvider dateAdapter={AdapterDayjs}>
-                    <DatePicker
-                      {...field}
-                      slotProps={{
-                        textField: { size: 'small' },
-                      }}
-                      label="Date"
-                      views={['month', 'year']}
-                      value={field.value ? dayjs(field.value) : null}
-                      onChange={(newValue) => {
-                        field.onChange(newValue?.format('YYYY-MM') || '');
-                      }}
-                    />
-                  </LocalizationProvider>
-                  {errors.date && (
-                    <FormHelperText>{errors.date.message}</FormHelperText>
-                  )}
-                </FormControl>
-              )}
-            />
-            <Controller
-              name="budget"
-              control={control}
-              render={({ field }) => (
-                <FormControl error={Boolean(errors.budget)} size="small">
-                  <InputLabel>Budget</InputLabel>
-                  <OutlinedInput
-                    {...field}
-                    label="Budget"
-                    type="number"
-                    inputProps={{ min: 0, max: 9999999999 }}
-                  />
-                  {errors.budget && (
-                    <FormHelperText>{errors.budget.message}</FormHelperText>
-                  )}
-                </FormControl>
-              )}
-            />
-            <FormControl size="small">
-              <InputLabel>Recorded expense</InputLabel>
-              <OutlinedInput
-                disabled
-                value={selectedBudget?.recordedExpense || 0}
-                label="Recorded expense"
-                type="number"
-              />
-            </FormControl>
-            <Controller
-              name="otherExpense"
-              control={control}
-              render={({ field }) => (
-                <FormControl error={Boolean(errors.otherExpense)} size="small">
-                  <InputLabel>Other expense</InputLabel>
-                  <OutlinedInput
-                    {...field}
-                    label="Other expense"
-                    type="number"
-                    inputProps={{ min: 0, max: 9999999999 }}
-                  />
-                  {errors.otherExpense && (
-                    <FormHelperText>
-                      {errors.otherExpense.message}
-                    </FormHelperText>
-                  )}
-                </FormControl>
-              )}
-            />
-
-            <FormControl size="small">
-              <InputLabel>Surplus</InputLabel>
-              <OutlinedInput
-                disabled
-                value={
-                  updatedBudget[0] -
-                  updatedBudget[1] -
-                  (selectedBudget?.recordedExpense || 0)
-                }
-                label="Surplus"
-                type="number"
-              />
-            </FormControl>
-            <Controller
-              name="notes"
-              control={control}
-              render={({ field }) => (
-                <FormControl error={Boolean(errors.notes)} size="small">
-                  <InputLabel>Notes</InputLabel>
-                  <OutlinedInput {...field} label="Notes" type="text" />
-                  {errors.notes && (
-                    <FormHelperText>{errors.notes.message}</FormHelperText>
-                  )}
-                </FormControl>
-              )}
-            />
-          </Stack>
+          <Grid container spacing={2}>
+            {Object.keys(defaultValues).map((key) => {
+              const error = errors[key as keyof Values];
+              return (
+                <GridRow
+                  key={key}
+                  control={control}
+                  name={key as FieldPath<Values>}
+                  error={error}
+                  label={key}
+                  editable={key !== 'surplus' && key !== 'recordedExpense'}
+                  value={
+                    key === 'recordedExpense'
+                      ? selectedBudget?.recordedExpense
+                      : key === 'surplus'
+                        ? updatedBudget[0] -
+                          updatedBudget[1] -
+                          (selectedBudget?.recordedExpense || 0)
+                        : undefined
+                  }
+                  type={key === 'date' || key === 'notes' ? 'text' : 'number'}
+                />
+              );
+            })}
+          </Grid>
         </form>
       </DialogContent>
-      <DialogActions>
-        <Button onClick={() => onClose(false)}>Cancel</Button>
-        <Button onClick={handleSubmit(onSubmit)}>Save</Button>
+      <DialogActions className="px-4 py-2">
+        <Button variant="outlined" size="small" onClick={() => onClose(false)}>
+          Cancel
+        </Button>
+        <Button
+          variant="contained"
+          size="small"
+          onClick={handleSubmit(onSubmit)}
+        >
+          Save
+        </Button>
       </DialogActions>
     </Dialog>
   );
 }
+
+// TODO: input length validation
+const GridRow = ({
+  control,
+  name,
+  error,
+  label,
+  value,
+  editable,
+  type,
+  maxLength = 20,
+}: {
+  control: Control<Values>;
+  name: FieldPath<Values>;
+  error: FieldError | undefined;
+  label: string;
+  value?: number;
+  editable: boolean;
+  type: 'text' | 'number';
+  maxLength?: number;
+}) => {
+  return (
+    <>
+      <Grid item xs={4} lg={4} md={4} className="self-center">
+        <Typography variant="subtitle1">
+          {label
+            .replace(/([A-Z])/g, ' $1')
+            .replace(/^./, (str) => str.toUpperCase())}
+        </Typography>
+      </Grid>
+      <Grid item xs={8} lg={8} md={8}>
+        {editable ? (
+          <Controller
+            name={name}
+            control={control}
+            render={({ field }) => (
+              <>
+                {name === 'date' ? (
+                  <FormControl error={!!error} size="small" fullWidth>
+                    <LocalizationProvider dateAdapter={AdapterDayjs}>
+                      <DatePicker
+                        {...field}
+                        slotProps={{
+                          textField: { size: 'small' },
+                        }}
+                        views={['month', 'year']}
+                        value={field.value ? dayjs(field.value) : null}
+                        onChange={(newValue) => {
+                          field.onChange(newValue?.format('YYYY-MM') || '');
+                        }}
+                      />
+                    </LocalizationProvider>
+                    {error && <FormHelperText>{error?.message}</FormHelperText>}
+                  </FormControl>
+                ) : (
+                  <TextField
+                    {...field}
+                    size="small"
+                    hiddenLabel
+                    fullWidth
+                    type={type}
+                    inputProps={{ maxLength }}
+                    error={!!error}
+                    helperText={error?.message}
+                  />
+                )}
+              </>
+            )}
+          />
+        ) : (
+          <TextField
+            size="small"
+            hiddenLabel
+            fullWidth
+            disabled
+            type={type}
+            value={value}
+            inputProps={{ maxLength }}
+          />
+        )}
+      </Grid>
+    </>
+  );
+};

@@ -197,20 +197,23 @@ export default function ReceiptsPage({
   };
 
   return (
-    <Stack spacing={3}>
-      <Stack direction="row" spacing={3}>
+    <Stack spacing={2}>
+      <Stack direction="row" spacing={3} alignItems="center">
         <Stack className="flex-auto">
-          <Typography variant="h4">Receipts</Typography>
+          <Typography variant="h4" className="font-bold">
+            Receipts
+          </Typography>
         </Stack>
         <Stack direction="row" spacing={1}>
           <Button
             startIcon={<FileUpload />}
-            color="inherit"
+            color="primary"
             onClick={() => setOpenUploadDialog(true)}
           >
             Upload
           </Button>
-          <Button startIcon={<FileDownload />} color="inherit">
+          {/* TODO: Implement download */}
+          <Button startIcon={<FileDownload />} color="primary">
             Download
           </Button>
           <Button startIcon={<Add />} variant="contained" onClick={handleAdd}>
