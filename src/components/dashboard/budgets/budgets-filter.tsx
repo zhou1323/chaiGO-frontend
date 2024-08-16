@@ -21,8 +21,8 @@ export default function BudgetsFilter({
   };
 
   return (
-    <Card>
-      <Stack direction="row" spacing={1} className="p-3">
+    <Card className="rounded-lg bg-white p-4 shadow">
+      <Stack direction="row" spacing={1}>
         <LocalizationProvider dateAdapter={AdapterDayjs}>
           <DatePicker
             slotProps={{
@@ -65,13 +65,18 @@ export default function BudgetsFilter({
           />
         </LocalizationProvider>
 
-        <Button variant="contained" color="primary" onClick={clearFilters}>
+        <Button
+          variant="contained"
+          color="primary"
+          onClick={clearFilters}
+          className="w-20"
+        >
           Reset
         </Button>
         <Button
           variant="contained"
           color="primary"
-          className="mr-3"
+          className="mr-3 w-20"
           onClick={doFilter}
         >
           Search

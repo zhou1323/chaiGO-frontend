@@ -1,5 +1,6 @@
 'use client';
 import AuthGuard from '@/components/auth/auth-guard';
+import Footer from '@/components/dashboard/layout/footer';
 import MainNav from '@/components/dashboard/layout/main-nav';
 import SideNav from '@/components/dashboard/layout/side-nav';
 import { Box, Container } from '@mui/material';
@@ -10,14 +11,15 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 
   return (
     <AuthGuard>
-      <Box className="flex h-full">
+      <Box className="flex min-h-dvh">
         <SideNav open={navOpen} onClose={() => setNavOpen(false)} />
         <Box className="flex flex-auto flex-col">
           <MainNav handleNavOpen={() => setNavOpen(!navOpen)} />
-          <main className="flex-auto">
-            <Container maxWidth={false} className="h-full bg-gray-50 p-6">
+          <main className="flex flex-auto flex-col bg-gray-50 p-6">
+            <Container maxWidth={false} className="flex-auto p-0">
               {children}
             </Container>
+            <Footer />
           </main>
         </Box>
       </Box>

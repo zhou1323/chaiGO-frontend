@@ -74,7 +74,7 @@ export default function ImageUpload({
   };
 
   return (
-    <Box className="py-4">
+    <Box>
       <Box className="flex flex-wrap gap-2.5">
         {images.map((file, index) => (
           <Card key={index} className="relative w-48">

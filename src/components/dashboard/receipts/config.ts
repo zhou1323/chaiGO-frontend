@@ -29,7 +29,12 @@ export const categories = [
   },
 ];
 
-export const receiptsTableColumns = [
+export const receiptsTableColumns: {
+  key: string;
+  label: string;
+  align?: 'left' | 'center' | 'right' | 'justify' | 'inherit';
+  sorting?: boolean;
+}[] = [
   {
     key: 'date',
     label: 'Date',
@@ -49,7 +54,7 @@ export const receiptsTableColumns = [
   {
     key: 'amount',
     label: 'Amount',
-    align: 'right',
+    align: 'left',
     sorting: true,
   },
   {

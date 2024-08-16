@@ -1,3 +1,4 @@
+import useCustomizationStore from '@/store/customization';
 import { Receipt } from '@/types/receipt';
 import { ArrowForward } from '@mui/icons-material';
 import {
@@ -53,11 +54,15 @@ export default function ReceiptsTable({
   const selectedAll = selectionProps.selected.size === rows.length;
   const selectedSome = selectionProps.selected.size > 0 && !selectedAll;
 
+  const getCurrencyString = useCustomizationStore(
+    (state) => state.getCurrencyString
+  );
+
   return (
-    <Card className="flex-auto overflow-auto">
+    <Card className="flex-auto overflow-auto rounded-lg shadow">
       <TableContainer className="">
         <Table>
-          <TableHead>
+          <TableHead className="bg-gray-100">
             <TableRow>
               <TableCell padding="checkbox">
                 <Checkbox
@@ -80,6 +85,8 @@ export default function ReceiptsTable({
                       ? sortingProps.orderType
                       : false
                   }
+                  className="font-bold"
+                  align={column.align}
                 >
                   {column.sorting ? (
                     <TableSortLabel
@@ -120,9 +127,9 @@ export default function ReceiptsTable({
                 <TableCell>
                   <Chip label={row.category} variant="outlined"></Chip>
                 </TableCell>
-                <TableCell align="right">{row.amount}</TableCell>
+                <TableCell>{getCurrencyString(row.amount || 0)}</TableCell>
                 <TableCell>{row.notes}</TableCell>
-                <TableCell>
+                <TableCell align="center">
                   <ArrowForward
                     className="cursor-pointer"
                     onClick={() => editReceipt(row.id)}

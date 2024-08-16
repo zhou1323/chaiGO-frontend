@@ -2,11 +2,17 @@ import { updatePasswordMe } from '@/lib/dashboard/userClient';
 import { paths } from '@/paths';
 import { zodResolver } from '@hookform/resolvers/zod';
 import {
+  Box,
   Button,
+  Card,
+  CardActions,
+  CardContent,
+  CardHeader,
   CircularProgress,
   Dialog,
   DialogContent,
   DialogTitle,
+  Divider,
   Stack,
   TextField,
   Typography,
@@ -75,73 +81,83 @@ export default function SettingsPassword() {
   };
 
   return (
-    <Stack spacing={3}>
-      <Typography className="font-bold" variant="h6">
-        Change Password
-      </Typography>
-
-      <form>
-        <Stack spacing={1}>
-          <Typography className="font-bold">Current Password</Typography>
-          <Controller
-            control={control}
-            name="currentPassword"
-            render={({ field }) => (
-              <TextField
-                {...field}
-                hiddenLabel
-                className="w-72"
-                size="small"
-                variant="outlined"
-                type="password"
-                error={!!errors.currentPassword}
-                helperText={errors.currentPassword?.message}
+    <Card className="w-1/2">
+      <CardHeader title="Change Password" />
+      <Divider />
+      <CardContent>
+        <form>
+          <Stack spacing={2}>
+            <Box>
+              <Typography className="font-bold">Current Password</Typography>
+              <Controller
+                control={control}
+                name="currentPassword"
+                render={({ field }) => (
+                  <TextField
+                    {...field}
+                    hiddenLabel
+                    className="w-72"
+                    size="small"
+                    variant="outlined"
+                    type="password"
+                    error={!!errors.currentPassword}
+                    helperText={errors.currentPassword?.message}
+                  />
+                )}
               />
-            )}
-          />
-          <Typography className="font-bold">Set Password</Typography>
-          <Controller
-            control={control}
-            name="newPassword"
-            render={({ field }) => (
-              <TextField
-                {...field}
-                hiddenLabel
-                className="w-72"
-                size="small"
-                type="password"
-                variant="outlined"
-                error={!!errors.newPassword}
-                helperText={errors.newPassword?.message}
+            </Box>
+            <Box>
+              <Typography className="font-bold">Set Password</Typography>
+              <Controller
+                control={control}
+                name="newPassword"
+                render={({ field }) => (
+                  <TextField
+                    {...field}
+                    hiddenLabel
+                    className="w-72"
+                    size="small"
+                    type="password"
+                    variant="outlined"
+                    error={!!errors.newPassword}
+                    helperText={errors.newPassword?.message}
+                  />
+                )}
               />
-            )}
-          />
-          <Typography className="font-bold">Confirm Password</Typography>
-          <Controller
-            control={control}
-            name="confirmPassword"
-            render={({ field }) => (
-              <TextField
-                {...field}
-                hiddenLabel
-                className="w-72"
-                size="small"
-                type="password"
-                variant="outlined"
-                error={!!errors.confirmPassword}
-                helperText={errors.confirmPassword?.message}
+            </Box>
+            <Box>
+              <Typography className="font-bold">Confirm Password</Typography>
+              <Controller
+                control={control}
+                name="confirmPassword"
+                render={({ field }) => (
+                  <TextField
+                    {...field}
+                    hiddenLabel
+                    className="w-72"
+                    size="small"
+                    type="password"
+                    variant="outlined"
+                    error={!!errors.confirmPassword}
+                    helperText={errors.confirmPassword?.message}
+                  />
+                )}
               />
-            )}
-          />
-        </Stack>
-      </form>
-      <Button
-        variant="contained"
-        className="w-20"
-        onClick={handleSubmit(onSubmit)}
-      >
-        Save
-      </Button>
+            </Box>
+          </Stack>
+        </form>
+      </CardContent>
+      <Divider />
+      <CardActions className="justify-end px-4 py-2">
+        <Button
+          variant="contained"
+          size="small"
+          className="w-20"
+          onClick={handleSubmit(onSubmit)}
+        >
+          Save
+        </Button>
+      </CardActions>
 
       <Dialog open={dialogOpen}>
         <DialogTitle>Password updated</DialogTitle>
@@ -154,6 +170,6 @@ export default function SettingsPassword() {
           </Stack>
         </DialogContent>
       </Dialog>
-    </Stack>
+    </Card>
   );
 }

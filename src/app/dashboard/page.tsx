@@ -15,21 +15,21 @@ export default function Page() {
   };
 
   return (
-    <Stack spacing={3}>
+    <Stack spacing={2}>
       <Stack direction="row" spacing={3}>
         <Stack className="flex-auto">
-          <Typography variant="h4">Overview</Typography>
+          <Typography variant="h4" className="font-bold">
+            Overview
+          </Typography>
         </Stack>
       </Stack>
 
-      <Stack direction="row" spacing={3}>
-        <BudgetsCurrentMonth
-          direction="column"
-          onRefresh={afterUpdateCurrent}
-        ></BudgetsCurrentMonth>
+      <BudgetsCurrentMonth
+        direction="row"
+        onRefresh={afterUpdateCurrent}
+      ></BudgetsCurrentMonth>
 
-        <OverviewBudgetChart ref={overviewBudget}></OverviewBudgetChart>
-      </Stack>
+      <OverviewBudgetChart ref={overviewBudget}></OverviewBudgetChart>
     </Stack>
   );
 }
