@@ -1,3 +1,4 @@
+'use client';
 import { getBudgetsOverview } from '@/lib/dashboard/budgetClient';
 import { paths } from '@/paths';
 import { BudgetsOverview } from '@/types/budgets';
