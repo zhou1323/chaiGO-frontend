@@ -77,7 +77,12 @@ export default function ForgotPasswordPage() {
 
       {!hasSent ? (
         <>
-          <form>
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              handleSubmit(onSubmit);
+            }}
+          >
             <Stack spacing={3} className="py-4">
               <Controller
                 control={control}
