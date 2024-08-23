@@ -19,7 +19,7 @@ export interface Budget {
 }
 
 export interface BudgetsOverview {
-  month: string;
+  month: number;
   currentYear: Budget;
   lastYear: Budget;
 }

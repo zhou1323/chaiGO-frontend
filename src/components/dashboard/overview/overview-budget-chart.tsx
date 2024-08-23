@@ -38,7 +38,6 @@ const OverviewBudgetChart = React.forwardRef<BudgetsOverviewRef>(
         if (message) {
           throw new Error(message);
         }
-        console.log(data, 123);
         if (data) {
           setBudgets(data);
         }
@@ -46,6 +45,21 @@ const OverviewBudgetChart = React.forwardRef<BudgetsOverviewRef>(
         console.log(error.response?.data.detail || error.message);
       }
     };
+
+    const paddedBudgets = React.useMemo(() => {
+      if (budgets.length === 0) {
+        return [];
+      }
+      const paddedBudgets = [];
+      for (let i = 1; i <= 12; i++) {
+        const defaultBudget = {
+          month: i,
+        };
+        const recordedBudget = budgets.find((budget) => budget.month === i);
+        paddedBudgets.push({ ...defaultBudget, ...recordedBudget });
+      }
+      return paddedBudgets;
+    }, [budgets]);
 
     React.useEffect(() => {
       getBudgetsOverviewData();
@@ -78,14 +92,16 @@ const OverviewBudgetChart = React.forwardRef<BudgetsOverviewRef>(
                 label: 'budget',
                 id: 'budget',
                 yAxisId: 'money',
-                data: budgets.map((item) => item.currentYear.budget),
+                data: paddedBudgets.map(
+                  (item) => item.currentYear?.budget || 0
+                ),
               },
               {
                 type: 'line',
                 label: 'expenses(last year)',
                 id: 'lastYear',
                 yAxisId: 'money',
-                data: budgets.map((item) =>
+                data: paddedBudgets.map((item) =>
                   item.lastYear
                     ? item.lastYear.recordedExpense + item.lastYear.otherExpense
                     : 0
@@ -96,7 +112,7 @@ const OverviewBudgetChart = React.forwardRef<BudgetsOverviewRef>(
                 id: 'thisYear',
                 label: 'expenses(this year)',
                 yAxisId: 'money',
-                data: budgets.map((item) =>
+                data: paddedBudgets.map((item) =>
                   item.currentYear
                     ? item.currentYear.recordedExpense +
                       item.currentYear.otherExpense
