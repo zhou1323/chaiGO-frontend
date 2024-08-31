@@ -2,6 +2,7 @@ import { paths } from '@/paths';
 import {
   Assessment,
   Leaderboard,
+  LocalOffer,
   Receipt,
   Settings,
   SvgIconComponent,
@@ -20,6 +21,12 @@ export const navItems = [
     label: 'Overview',
     path: paths.dashboard.overview,
     icon: Assessment,
+  },
+  {
+    key: 'offers',
+    label: 'Offers',
+    path: paths.dashboard.offers,
+    icon: LocalOffer,
   },
   {
     key: 'budgets',

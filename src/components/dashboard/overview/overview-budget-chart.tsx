@@ -72,10 +72,10 @@ const OverviewBudgetChart = React.forwardRef<BudgetsOverviewRef>(
     const router = useRouter();
 
     return (
-      <Card className="w-full">
+      <Card className="flex h-full w-2/3 flex-col">
         <CardHeader title="Analysis" />
         <Divider />
-        <CardContent>
+        <CardContent className="flex-1">
           <ResponsiveChartContainer
             xAxis={[
               {
@@ -120,7 +120,7 @@ const OverviewBudgetChart = React.forwardRef<BudgetsOverviewRef>(
                 ),
               },
             ]}
-            height={400}
+            height={425}
             margin={{ left: 70, right: 70 }}
             sx={{
               [`.${axisClasses.left} .${axisClasses.label}`]: {

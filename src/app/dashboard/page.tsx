@@ -1,6 +1,7 @@
 'use client';
 
 import BudgetsCurrentMonth from '@/components/dashboard/budgets/budgets-current-month';
+import OffersList from '@/components/dashboard/offers/offers-list';
 import OverviewBudgetChart, {
   BudgetsOverviewRef,
 } from '@/components/dashboard/overview/overview-budget-chart';
@@ -29,7 +30,10 @@ export default function Page() {
         onRefresh={afterUpdateCurrent}
       ></BudgetsCurrentMonth>
 
-      <OverviewBudgetChart ref={overviewBudget}></OverviewBudgetChart>
+      <Stack direction="row" spacing={2} className="h-[36rem]">
+        <OverviewBudgetChart ref={overviewBudget}></OverviewBudgetChart>
+        <OffersList isMinimal />
+      </Stack>
     </Stack>
   );
 }
