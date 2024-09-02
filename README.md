@@ -4,11 +4,12 @@ A web application built with Next.js and TypeScript for managing ChaiGO services
 
 ## Technology Stack
 
-- **Next.js & TypeScript**: Scalable, maintainable, and strongly-typed for robustness.
+- **React(Next.js) & TypeScript**: Scalable, maintainable, and strongly-typed for robustness.
 - **Material UI Components**: Reusable UI components.
 - **Tailwind CSS**: Efficient styling with utility-first CSS.
 - **Zustand**: Toolkit for state management.
 - **Playwright**: Robust testing framework for End-to-End testing.
+- **Sentry**: Robust error handling and monitoring.
 - **ESLint/Prettier**: Code style enforcement.
 - **Docker**: Simplifies deployment and consistency across environments.
 - **GitHub Actions**: Integrations with GitHub Actions for automated testing and deployments.
@@ -42,6 +43,10 @@ Figma is used to create the design of the application. [Here](https://www.figma.
 
 - Create a `.env` file in the root directory and set the following environment variables:
   - `NEXT_PUBLIC_BASE_URL`: The base URL of the backend API.
+  - `NEXT_PUBLIC_SENTRY_DSN`: The Sentry DSN for error monitoring.
+  - `SENTRY_AUTH_TOKEN`: The Sentry authentication token.
+  - `SENTRY_ORG`: The Sentry organization.
+  - `SENTRY_PROJECT`: The Sentry project.
 
 ## How to run
 
