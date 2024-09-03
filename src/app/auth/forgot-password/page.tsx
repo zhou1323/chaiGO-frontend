@@ -80,7 +80,7 @@ export default function ForgotPasswordPage() {
           <form
             onSubmit={(e) => {
               e.preventDefault();
-              handleSubmit(onSubmit);
+              handleSubmit(onSubmit)();
             }}
           >
             <Stack spacing={3} className="py-4">
