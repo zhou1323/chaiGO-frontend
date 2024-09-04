@@ -3,7 +3,7 @@ import {
   GetOffersListParams,
   getOffersList,
 } from '@/lib/dashboard/offerClient';
-import { getUnitPrice } from '@/lib/utils';
+import { getOfferInfo } from '@/lib/utils';
 import { paths } from '@/paths';
 import useCustomizationStore from '@/store/customization';
 import { Offer } from '@/types/offer';
@@ -227,27 +227,6 @@ function OfferContent({
     (state) => state.getCurrencyString
   );
 
-  const getPriceString = (offer: Offer) => {
-    const quantityString = offer.quantity !== 1 ? `${offer.quantity} x ` : '';
-    const unitRangeString =
-      offer.unitRangeFrom === offer.unitRangeTo
-        ? offer.unitRangeFrom
-        : `${offer.unitRangeFrom}-${offer.unitRangeTo}`;
-    const unitString = offer.unit;
-    const [standardUnit, maxStandardUnitPrice] = getUnitPrice(
-      offer.unit,
-      offer.quantity,
-      offer.unitRangeFrom,
-      offer.price
-    );
-
-    let unitPriceString = `${getCurrencyString(Number(maxStandardUnitPrice))}/${standardUnit}`;
-    if (offer.unitRangeFrom !== offer.unitRangeTo) {
-      unitPriceString = 'max ' + unitPriceString;
-    }
-    return `${quantityString}${unitRangeString}${unitString} * ${unitPriceString}`;
-  };
-
   return (
     <Stack direction="row" spacing={2} className="items-center">
       <Box className="relative flex justify-center">
@@ -267,9 +246,27 @@ function OfferContent({
             className="font-bold"
           >{`${offer.itemEn}`}</Typography>
         </Tooltip>
-        <Tooltip title={getPriceString(offer)} placement="top" arrow>
+        <Tooltip
+          title={getOfferInfo(
+            offer.quantity,
+            offer.unit,
+            offer.unitRangeFrom,
+            offer.unitRangeTo,
+            offer.price,
+            getCurrencyString
+          )}
+          placement="top"
+          arrow
+        >
           <Typography variant="body2" className="mb-2 text-gray-500">
-            {getPriceString(offer)}
+            {getOfferInfo(
+              offer.quantity,
+              offer.unit,
+              offer.unitRangeFrom,
+              offer.unitRangeTo,
+              offer.price,
+              getCurrencyString
+            )}
           </Typography>
         </Tooltip>
         <Chip

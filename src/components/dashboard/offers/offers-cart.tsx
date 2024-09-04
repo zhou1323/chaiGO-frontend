@@ -1,3 +1,5 @@
+import { sendShoppingListEmail } from '@/lib/dashboard/offerClient';
+import { getOfferInfo } from '@/lib/utils';
 import useCustomizationStore from '@/store/customization';
 import { Offer } from '@/types/offer';
 import {
@@ -115,6 +117,35 @@ export default function OffersCart({
     (state) => state.getCurrencyString
   );
 
+  const sendShoppingList = async () => {
+    try {
+      const { message } = await sendShoppingListEmail({
+        shoppingList: storesChosen.map((store) => ({
+          storeName: store,
+          offers: operationProps.offers[store].items.map((item) => ({
+            ...item,
+            priceString: getCurrencyString(item.price),
+            offerInfo: getOfferInfo(
+              item.quantity,
+              item.unit,
+              item.unitRangeFrom,
+              item.unitRangeTo,
+              item.price,
+              getCurrencyString
+            ),
+          })),
+          total: getCurrencyString(calculateTotal(store)),
+        })),
+        total: getCurrencyString(total),
+        weeklyBudget: getCurrencyString(weeklyBudget),
+      });
+      if (message) {
+        throw new Error(message);
+      }
+    } catch (error: any) {
+      console.log(error.response?.data.detail || error.message);
+    }
+  };
   return (
     <Card
       className="sticky top-20 h-min w-1/4 min-w-min rounded-lg bg-white shadow"
@@ -240,7 +271,12 @@ export default function OffersCart({
       </CardContent>
       {storesChosen.length > 0 && (
         <CardActions className="justify-end px-4 py-2">
-          <Button variant="contained" size="small">
+          <Button
+            variant="contained"
+            size="small"
+            onClick={sendShoppingList}
+            disabled={total > weeklyBudget}
+          >
             Send
           </Button>
         </CardActions>
