@@ -1,4 +1,7 @@
-import { sendShoppingListEmail } from '@/lib/dashboard/offerClient';
+import {
+  recommendShoppingList,
+  sendShoppingListEmail,
+} from '@/lib/dashboard/offerClient';
 import { getOfferInfo } from '@/lib/utils';
 import useCustomizationStore from '@/store/customization';
 import { Offer } from '@/types/offer';
@@ -146,6 +149,38 @@ export default function OffersCart({
       console.log(error.response?.data.detail || error.message);
     }
   };
+
+  const generateShoppingList = async () => {
+    try {
+      const { message, data } = await recommendShoppingList({
+        weeklyBudget: getCurrencyString(weeklyBudget),
+      });
+      if (message) {
+        throw new Error(message);
+      }
+
+      let shoppingListContent: {
+        [key: string]: {
+          open: boolean;
+          items: (Offer & { checked: boolean })[];
+        };
+      } = {};
+      if (data && data.items) {
+        data.items.forEach((item) => {
+          shoppingListContent[item.storeName] = {
+            items: [
+              ...(shoppingListContent[item.storeName]?.items || []),
+              { ...item, checked: false },
+            ],
+            open: true,
+          };
+        });
+        operationProps.setOffers(shoppingListContent);
+      }
+    } catch (error: any) {
+      console.log(error.response?.data.detail || error.message);
+    }
+  };
   return (
     <Card
       className="sticky top-20 h-min w-1/4 min-w-min rounded-lg bg-white shadow"
@@ -166,6 +201,7 @@ export default function OffersCart({
             variant="contained"
             endIcon={<Star />}
             className="m-0 ml-4"
+            onClick={generateShoppingList}
           >
             Generate
           </Button>
