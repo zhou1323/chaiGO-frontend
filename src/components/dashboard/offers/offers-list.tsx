@@ -89,13 +89,20 @@ export default function OffersList({
     if (!operationProps) return;
     operationProps.setOffers((prevOffers) => {
       if (prevOffers[item.storeName]) {
+        const sameItem = prevOffers[item.storeName].items?.find(
+          (i) => i.item === item.item
+        );
         return {
           ...prevOffers,
           [item.storeName]: {
             ...prevOffers[item.storeName],
             items: [
               ...prevOffers[item.storeName].items,
-              { ...item, checked: false },
+              {
+                ...item,
+                id: sameItem ? `${item.id}-${Date.now()}` : item.id,
+                checked: false,
+              },
             ],
           },
         };

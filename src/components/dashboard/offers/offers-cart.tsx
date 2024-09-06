@@ -50,7 +50,7 @@ export default function OffersCart({
 }): React.ReactNode {
   const handleCheckboxChange = (
     store: string,
-    itemName: string,
+    id: string,
     checked: boolean
   ) => {
     operationProps.setOffers((prevOffers) => ({
@@ -58,18 +58,18 @@ export default function OffersCart({
       [store]: {
         ...prevOffers[store],
         items: prevOffers[store].items.map((item) =>
-          item.item === itemName ? { ...item, checked } : item
+          item.id === id ? { ...item, checked } : item
         ),
       },
     }));
   };
 
-  const handleDeleteItem = (store: string, itemName: string) => {
+  const handleDeleteItem = (store: string, id: string) => {
     operationProps.setOffers((prevOffers) => ({
       ...prevOffers,
       [store]: {
         ...prevOffers[store],
-        items: prevOffers[store].items.filter((item) => item.item !== itemName),
+        items: prevOffers[store].items.filter((item) => item.id !== id),
       },
     }));
   };
@@ -243,7 +243,7 @@ export default function OffersCart({
                       .filter((item) => !item.checked)
                       .map((item) => (
                         <CartItem
-                          key={item.item}
+                          key={item.id}
                           item={item}
                           checked={item.checked}
                           handleCheckboxChange={handleCheckboxChange}
@@ -255,7 +255,7 @@ export default function OffersCart({
                       .filter((item) => item.checked)
                       .map((item) => (
                         <CartItem
-                          key={item.item}
+                          key={item.id}
                           item={item}
                           checked={item.checked}
                           handleCheckboxChange={handleCheckboxChange}
@@ -330,12 +330,8 @@ const CartItem = ({
 }: {
   item: Offer;
   checked: boolean;
-  handleCheckboxChange: (
-    store: string,
-    itemName: string,
-    checked: boolean
-  ) => void;
-  handleDeleteItem: (store: string, itemName: string) => void;
+  handleCheckboxChange: (store: string, id: string, checked: boolean) => void;
+  handleDeleteItem: (store: string, id: string) => void;
   getCurrencyString: (price: number) => string;
 }): React.ReactNode => {
   return (
@@ -358,7 +354,7 @@ const CartItem = ({
           indeterminate={checked}
           className="p-0"
           onChange={(e) =>
-            handleCheckboxChange(item.storeName, item.item, e.target.checked)
+            handleCheckboxChange(item.storeName, item.id, e.target.checked)
           }
         />
         <Tooltip title={item.item} placement="top" arrow>
@@ -367,7 +363,7 @@ const CartItem = ({
             noWrap
             className={`${checked ? 'line-through' : ''} cursor-pointer`}
             onClick={() =>
-              handleCheckboxChange(item.storeName, item.item, !checked)
+              handleCheckboxChange(item.storeName, item.id, !checked)
             }
           >
             {item.item}
@@ -382,7 +378,7 @@ const CartItem = ({
           <IconButton
             className="p-0"
             size="small"
-            onClick={() => handleDeleteItem(item.storeName, item.item)}
+            onClick={() => handleDeleteItem(item.storeName, item.id)}
           >
             <Close />
           </IconButton>
