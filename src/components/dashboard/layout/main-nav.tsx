@@ -66,7 +66,7 @@ export default function MainNav({
             ref={userPopover.anchorRef}
             onClick={userPopover.handleOpen}
           >
-            <IconButton>
+            <IconButton data-testid="user-menu">
               <Person />
             </IconButton>
           </Tooltip>
