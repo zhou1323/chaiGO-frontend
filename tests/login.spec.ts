@@ -1,9 +1,16 @@
 import { expect, test, type Page } from '@playwright/test';
-import { testUser } from './config';
+import fs from 'fs';
+import path from 'path';
 test.use({ storageState: { cookies: [], origins: [] } });
 
 type OptionsType = {
   exact?: boolean;
+};
+
+const credentialsPath = path.resolve(__dirname, 'test-credentials.json');
+const testUser = JSON.parse(fs.readFileSync(credentialsPath, 'utf-8')) as {
+  email: string;
+  password: string;
 };
 
 const fillForm = async (page: Page, email: string, password: string) => {
@@ -52,7 +59,6 @@ test('Log in with valid email and password ', async ({ page }) => {
   await page.getByRole('button', { name: 'Sign in' }).click();
 
   await page.waitForURL('/dashboard');
-
   await expect(page.getByRole('heading', { name: 'Overview' })).toBeVisible();
 });
 
@@ -69,7 +75,6 @@ test('Log in with invalid password', async ({ page }) => {
   await page.goto('/auth/sign-in');
   await fillForm(page, testUser.email, 'invalidpassword');
   await page.getByRole('button', { name: 'Sign in' }).click();
-
   await expect(page.getByText('Incorrect email or password')).toBeVisible();
 });
 
@@ -82,12 +87,13 @@ test('Successful log out', async ({ page }) => {
   await page.getByRole('button', { name: 'Sign in' }).click();
 
   await page.waitForURL('/dashboard');
-
   await expect(page.getByRole('heading', { name: 'Overview' })).toBeVisible();
 
   await page.getByTestId('user-menu').click();
   await page.getByRole('menuitem', { name: 'Sign out' }).click();
+
   await page.waitForURL('/auth/sign-in');
+  await expect(page.getByRole('heading', { name: 'Welcome' })).toBeVisible();
 });
 
 test('Logged-out user cannot access protected routes', async ({ page }) => {
@@ -103,7 +109,8 @@ test('Logged-out user cannot access protected routes', async ({ page }) => {
   await page.getByTestId('user-menu').click();
   await page.getByRole('menuitem', { name: 'Sign out' }).click();
   await page.waitForURL('/auth/sign-in');
-
+  await expect(page.getByRole('heading', { name: 'Welcome' })).toBeVisible();
   await page.goto('/dashboard');
   await page.waitForURL('/auth/sign-in');
+  await expect(page.getByRole('heading', { name: 'Welcome' })).toBeVisible();
 });
