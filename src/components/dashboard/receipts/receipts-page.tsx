@@ -11,7 +11,7 @@ import {
 } from '@/lib/dashboard/receiptClient';
 import { ImageFile } from '@/types/imageFile';
 import { Receipt, ReceiptFilterParams } from '@/types/receipt';
-import { Add, FileDownload, FileUpload } from '@mui/icons-material';
+import { Add, FileUpload } from '@mui/icons-material';
 import { Button, Stack, Typography } from '@mui/material';
 import axios from 'axios';
 import { useSearchParams } from 'next/navigation';
@@ -213,9 +213,9 @@ export default function ReceiptsPage({
             Upload
           </Button>
           {/* TODO: Implement download */}
-          <Button startIcon={<FileDownload />} color="primary">
+          {/* <Button startIcon={<FileDownload />} color="primary">
             Download
-          </Button>
+          </Button> */}
           <Button startIcon={<Add />} variant="contained" onClick={handleAdd}>
             Add
           </Button>

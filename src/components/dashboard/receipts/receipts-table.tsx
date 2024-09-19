@@ -1,10 +1,11 @@
 import useCustomizationStore from '@/store/customization';
 import { Receipt } from '@/types/receipt';
-import { ArrowForward } from '@mui/icons-material';
+import { ArrowForward, CheckCircleOutline } from '@mui/icons-material';
 import {
   Card,
   Checkbox,
   Chip,
+  Icon,
   Table,
   TableBody,
   TableCell,
@@ -13,10 +14,11 @@ import {
   TablePagination,
   TableRow,
   TableSortLabel,
+  Tooltip,
 } from '@mui/material';
 import dayjs from 'dayjs';
 import * as React from 'react';
-import { receiptsTableColumns } from './config';
+import { receiptsTableColumns, receiptsTaskStatuses } from './config';
 
 interface ReceiptsTableProps {
   paginationProps: {
@@ -124,11 +126,29 @@ export default function ReceiptsTable({
                 </TableCell>
                 <TableCell>{dayjs(row.date).format('YYYY-MM-DD')}</TableCell>
                 <TableCell>{row.description}</TableCell>
-                <TableCell>
-                  <Chip label={row.category} variant="outlined"></Chip>
+                <TableCell align="center">
+                  <Chip
+                    label={row.category}
+                    variant="outlined"
+                    size="medium"
+                  ></Chip>
                 </TableCell>
                 <TableCell>{getCurrencyString(row.amount || 0)}</TableCell>
                 <TableCell>{row.notes}</TableCell>
+                <TableCell align="center">
+                  {row.taskStatus ? (
+                    <Tooltip title={row.taskMessage || row.taskStatus}>
+                      <Icon
+                        component={receiptsTaskStatuses[row.taskStatus].icon}
+                        color={
+                          receiptsTaskStatuses[row.taskStatus].color as any
+                        }
+                      />
+                    </Tooltip>
+                  ) : (
+                    <CheckCircleOutline color="success" />
+                  )}
+                </TableCell>
                 <TableCell align="center">
                   <ArrowForward
                     className="cursor-pointer"

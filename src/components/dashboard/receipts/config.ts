@@ -1,3 +1,9 @@
+import {
+  CheckCircleOutline,
+  HighlightOffOutlined,
+  PendingOutlined,
+  ScheduleOutlined,
+} from '@mui/icons-material';
 export const categories = [
   {
     label: 'Groceries',
@@ -49,7 +55,7 @@ export const receiptsTableColumns: {
   {
     key: 'category',
     label: 'Category',
-    align: 'left',
+    align: 'center',
   },
   {
     key: 'amount',
@@ -63,8 +69,41 @@ export const receiptsTableColumns: {
     align: 'left',
   },
   {
+    key: 'status',
+    label: 'Status',
+    align: 'center',
+  },
+  {
     key: 'actions',
     label: 'Actions',
     align: 'center',
   },
 ];
+
+export const receiptsTaskStatuses = {
+  PENDING: {
+    label: 'Pending',
+    color: 'warning',
+    icon: PendingOutlined,
+  },
+  STARTED: {
+    label: 'Started',
+    color: 'primary',
+    icon: ScheduleOutlined,
+  },
+  RETRY: {
+    label: 'Retry',
+    color: 'warning',
+    icon: ScheduleOutlined,
+  },
+  FAILURE: {
+    label: 'Failure',
+    color: 'error',
+    icon: HighlightOffOutlined,
+  },
+  SUCCESS: {
+    label: 'Success',
+    color: 'success',
+    icon: CheckCircleOutline,
+  },
+};
