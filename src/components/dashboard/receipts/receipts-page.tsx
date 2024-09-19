@@ -174,19 +174,21 @@ export default function ReceiptsPage({
             fileName: files[index].name,
           };
         });
-        createReceiptsByUpload({
+        return createReceiptsByUpload({
           files: createdFiles,
         } as CreateReceiptsByUploadParams);
       })
       .then(() => {
         handleUploadClose();
         search();
+        return Promise.resolve();
       })
       .catch((error) => {
         console.log(
           'Upload failed',
           error.response?.data.detail || error.message
         );
+        return Promise.reject(error);
       });
   };
 
