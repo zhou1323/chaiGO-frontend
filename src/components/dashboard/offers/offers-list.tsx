@@ -25,7 +25,7 @@ import {
   Typography,
 } from '@mui/material';
 import { useRouter } from 'next/navigation';
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 
 interface OperationProps {
   offers: {
@@ -79,10 +79,6 @@ export default function OffersList({
     hasMore,
     loading: isLoading,
     onLoadMore: loadMoreOffers,
-  });
-
-  useEffect(() => {
-    loadMoreOffers();
   });
 
   const addToCart = (item: Offer) => {
