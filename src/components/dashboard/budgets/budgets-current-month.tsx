@@ -72,13 +72,15 @@ const BudgetsCurrentMonth = React.forwardRef<
   }, [currentBudget]);
 
   const expenseProgress = React.useMemo(() => {
-    if (!currentBudget) return 0;
+    if (!currentBudget || currentBudget.budget === 0) return 0;
     return Math.round((totalExpense / currentBudget.budget) * 100);
   }, [currentBudget, totalExpense]);
 
   const weeklyBudget = React.useMemo(() => {
-    if (!currentBudget || currentBudget.surplus < 0) return 0;
-    return Math.round(currentBudget.surplus / weeksLeftInMonth());
+    let weeksLeft = weeksLeftInMonth();
+    if (!currentBudget || currentBudget.surplus < 0 || weeksLeft === 0)
+      return 0;
+    return Math.round(currentBudget.surplus / weeksLeft);
   }, [currentBudget]);
 
   const countryCode = 'sv-SE';
