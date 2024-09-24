@@ -11,6 +11,7 @@ import {
   Box,
   Button,
   FormControl,
+  IconButton,
   InputLabel,
   OutlinedInput,
   Stack,
@@ -18,6 +19,7 @@ import {
   Typography,
 } from '@mui/material';
 import Link from '@mui/material/Link';
+import Image from 'next/image';
 import RouterLink from 'next/link';
 import { useRouter } from 'next/navigation';
 import * as React from 'react';
@@ -110,9 +112,26 @@ export default function SignInPage() {
   return (
     <Stack spacing={1}>
       <Stack spacing={1}>
-        <Typography variant="h4" className="font-bold">
-          Welcome
-        </Typography>
+        <Box className="flex items-center justify-between">
+          <Typography variant="h4" className="font-bold">
+            Welcome
+          </Typography>
+          <Link
+            href="https://github.com/zhou1323/chaiGO"
+            target="_blank"
+            component={RouterLink}
+          >
+            <IconButton>
+              <Image
+                src="/assets/github-mark.svg"
+                alt="github"
+                width={24}
+                height={24}
+              />
+            </IconButton>
+          </Link>
+        </Box>
+
         <Typography variant="body2" className="text-gray-500">
           Don&apos;t have an account?{' '}
           <Link component={RouterLink} href={paths.auth.signUp} variant="body2">
