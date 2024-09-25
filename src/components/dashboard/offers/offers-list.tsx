@@ -261,7 +261,7 @@ function OfferContent({
           placement="top"
           arrow
         >
-          <Typography variant="body2" className="mb-2 text-gray-500">
+          <Typography variant="body2" className="mb-2 text-gray-500" noWrap>
             {getOfferInfo(
               offer.quantity,
               offer.unit,
