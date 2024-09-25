@@ -8,7 +8,7 @@ export default function AuthLayout({
 }) {
   return (
     <GuestGuard>
-      <Box className="flex min-h-full flex-col lg:grid lg:grid-cols-2">
+      <Box className="flex h-full flex-col lg:grid lg:grid-cols-2">
         <Box className="hidden items-center justify-center bg-[#122647] p-3 lg:flex">
           <Stack spacing={3} className="w-2/3">
             <Box className="flex justify-center">
@@ -29,7 +29,7 @@ export default function AuthLayout({
             </Stack>
           </Stack>
         </Box>
-        <Box className="flex items-center justify-center bg-[#f9fafc]">
+        <Box className="flex h-full items-center justify-center bg-[#f9fafc]">
           <Box className="w-2/3 rounded-lg border border-zinc-200 bg-white p-12 shadow">
             {children}
           </Box>
