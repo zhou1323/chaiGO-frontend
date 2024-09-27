@@ -46,5 +46,6 @@ export function recommendShoppingList(
     url: '/api/v1/offers/recommend-shopping-list',
     method: 'GET',
     params: data,
+    timeout: 20000,
   });
 }
