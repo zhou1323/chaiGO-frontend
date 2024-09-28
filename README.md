@@ -16,11 +16,11 @@ A web application built with Next.js and TypeScript for managing ChaiGO services
 
 ## Design files
 
-Figma is used to create the design of the application. [Here](https://www.figma.com/design/Yb1g9RlYwV8o2kN8g5Q59U/ChaiGO-Frontend?node-id=0%3A1&t=Z8Z8Z8Z8Z8Z8Z8Z8Z8) is the link to the design.
+Figma is used to create the design of the application. [Here](https://www.figma.com/design/GeZxtUnTDjQyR3V4rTd5EW/ChaiGO-pages?node-id=0-1&t=cMFcwynIqNB3sNOL-1) is the link to the design.
 
 ## Project wikis
 
-[Here](https://chai-go.notion.site/ChaiGO-Frontend-944924824444444444444444444) is the link to the project wiki.
+[Here](https://midnight-scarf-544.notion.site/ChaiGo-Development-Wiki-5b29040746e74457a3afe218f0c634e5?pvs=4) is the link to the project wiki.
 
 ## Project Structure
 
