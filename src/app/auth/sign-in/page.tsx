@@ -57,7 +57,7 @@ export default function SignInPage() {
   // Set to true to enable captcha
   const enableCaptcha = false;
 
-  const fetchCaptcha = async () => {
+  const fetchCaptcha = React.useCallback(async () => {
     setIsPending(true);
     try {
       const { data, message } = await getCaptcha();
@@ -79,7 +79,7 @@ export default function SignInPage() {
     } finally {
       setIsPending(false);
     }
-  };
+  }, [setError, setIsPending]);
 
   const onSubmit = async (values: Values) => {
     setIsPending(true);
@@ -105,7 +105,7 @@ export default function SignInPage() {
     } else {
       setValue('captcha', 'captcha');
     }
-  }, []);
+  }, [enableCaptcha, fetchCaptcha, setValue]);
 
   return (
     <Stack spacing={1}>
@@ -172,6 +172,11 @@ export default function SignInPage() {
                   type={showPassword ? 'text' : 'password'}
                   error={!!errors.password}
                   helperText={errors.password?.message}
+                  onKeyUp={(e) => {
+                    if (e.key === 'Enter') {
+                      handleSubmit(onSubmit);
+                    }
+                  }}
                   InputProps={
                     showPassword
                       ? {

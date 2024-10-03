@@ -1,3 +1,4 @@
+'use client';
 import { getBudgetsCurrent } from '@/lib/dashboard/budgetClient';
 import { weeksLeftInMonth } from '@/lib/utils';
 import useCustomizationStore from '@/store/customization';

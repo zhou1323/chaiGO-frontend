@@ -18,13 +18,17 @@ export interface SignOutParams {
   email: string;
 }
 
+export interface VerificationCodeParams {
+  email: string;
+}
+
 export interface SignUpParams {
   email: string;
   password: string;
   username: string;
 }
 
-export interface revocerPasswordParam {
+export interface recoverPasswordParam {
   email: string;
 }
 
@@ -70,8 +74,18 @@ export function signUp(data: SignUpParams): Promise<BaseResponse> {
   });
 }
 
+export function getVerificationCode(
+  data: VerificationCodeParams
+): Promise<BaseResponse> {
+  return request({
+    url: '/api/v1/auth/verification-code',
+    method: 'GET',
+    params: data,
+  });
+}
+
 export function recoverPassword(
-  data: revocerPasswordParam
+  data: recoverPasswordParam
 ): Promise<BaseResponse> {
   return request({
     url: '/api/v1/auth/recover-password',

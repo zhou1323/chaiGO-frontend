@@ -29,3 +29,28 @@ export function weeksLeftInMonth(): number {
 
   return weeksLeft;
 }
+
+export function getUnitPrice(
+  unit: string,
+  quantity: number,
+  unitRangeFrom: number,
+  price: number
+) {
+  let standardUnit = unit;
+  let standardUnitRangeFrom = unitRangeFrom;
+  let maxStandardUnitPrice = price;
+  if (unit === 'g') {
+    standardUnit = 'kg';
+    standardUnitRangeFrom = unitRangeFrom / 1000;
+    maxStandardUnitPrice = price / (quantity * standardUnitRangeFrom);
+  } else if (unit === 'dl') {
+    standardUnit = 'l';
+    standardUnitRangeFrom = unitRangeFrom / 10;
+    maxStandardUnitPrice = price / (quantity * standardUnitRangeFrom);
+  } else if (unit === 'ml') {
+    standardUnit = 'l';
+    standardUnitRangeFrom = unitRangeFrom / 1000;
+    maxStandardUnitPrice = price / (quantity * standardUnitRangeFrom);
+  }
+  return [standardUnit, maxStandardUnitPrice.toFixed(2)];
+}

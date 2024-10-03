@@ -1,4 +1,5 @@
 'use client';
+import { getVerificationCode } from '@/lib/auth/client';
 import { paths } from '@/paths';
 import useUserStore from '@/store/user';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -16,6 +17,9 @@ const schema = zod.object({
     .string()
     .min(8, { message: 'Password should be at least 8 characters' }),
   username: zod.string().min(1, { message: 'Username is required' }),
+  verificationCode: zod
+    .string()
+    .length(6, { message: 'Verification code should be 6 characters' }),
 });
 
 type Values = zod.infer<typeof schema>;
@@ -24,6 +28,7 @@ const defaultValues = {
   username: '',
   email: '',
   password: '',
+  verificationCode: '',
 } satisfies Values;
 
 export default function SignUpPage() {
@@ -32,24 +37,72 @@ export default function SignUpPage() {
     handleSubmit,
     setError,
     formState: { errors },
+    getValues,
+    clearErrors,
   } = useForm<Values>({ defaultValues, resolver: zodResolver(schema) });
 
   const [isPending, setIsPending] = React.useState(false);
 
   const signUp = useUserStore((state) => state.signUp);
+  const [isRequestingVerificationCode, setIsRequestingVerificationCode] =
+    React.useState(false);
+  const [countdown, setCountdown] = React.useState(60);
+
+  const handleSendVerificationCode = async () => {
+    try {
+      const email = getValues('email');
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(email)) {
+        setError('email', { message: 'Invalid email' });
+        return;
+      }
+
+      setIsRequestingVerificationCode(true);
+      const { message } = await getVerificationCode({ email });
+      if (message) {
+        throw new Error(message);
+      }
+    } catch (error: any) {
+      setError('root', {
+        type: 'server',
+        message: error.response?.data.detail || error.message,
+      });
+    } finally {
+      setTimeout(() => {
+        setIsRequestingVerificationCode(false);
+        setCountdown(60);
+      }, 60000);
+    }
+  };
+
+  React.useEffect(() => {
+    if (isRequestingVerificationCode) {
+      const interval = setInterval(() => {
+        setCountdown((prevCountdown) => prevCountdown - 1);
+      }, 1000);
+      return () => clearInterval(interval);
+    }
+  }, [isRequestingVerificationCode]);
 
   const router = useRouter();
   const onSubmit = async (values: Values) => {
     setIsPending(true);
+    try {
+      const { message } = await signUp(values);
 
-    const { message } = await signUp(values);
-
-    if (message) {
-      setError('root', { type: 'server', message: message });
-    } else {
-      router.push(paths.auth.signIn);
+      if (message) {
+        throw new Error(message);
+      } else {
+        router.push(paths.auth.signIn);
+      }
+    } catch (error: any) {
+      setError('root', {
+        type: 'server',
+        message: error.response?.data.detail || error.message,
+      });
+    } finally {
+      setIsPending(false);
     }
-    setIsPending(false);
   };
 
   return (
@@ -98,6 +151,10 @@ export default function SignUpPage() {
                 type="email"
                 error={!!errors.email}
                 helperText={errors.email?.message}
+                onChange={(e) => {
+                  field.onChange(e);
+                  clearErrors('email');
+                }}
               ></TextField>
             )}
           ></Controller>
@@ -113,10 +170,42 @@ export default function SignUpPage() {
                 type="password"
                 error={!!errors.password}
                 helperText={errors.password?.message}
+                onKeyUp={(e) => {
+                  if (e.key === 'Enter') {
+                    handleSubmit(onSubmit);
+                  }
+                }}
               ></TextField>
             )}
           ></Controller>
 
+          <Stack spacing={1} direction="row" className="">
+            <Controller
+              name="verificationCode"
+              control={control}
+              render={({ field }) => (
+                <TextField
+                  {...field}
+                  className="flex-1"
+                  size="small"
+                  label="Verification code"
+                  error={!!errors.verificationCode}
+                  helperText={errors.verificationCode?.message}
+                ></TextField>
+              )}
+            ></Controller>
+            {/* Button used to send verification code */}
+            <Button
+              variant="outlined"
+              className="h-10"
+              disabled={isRequestingVerificationCode}
+              onClick={handleSendVerificationCode}
+            >
+              {isRequestingVerificationCode
+                ? `Request (${countdown})`
+                : 'Request'}
+            </Button>
+          </Stack>
           {errors.root && <Alert severity="error">{errors.root.message}</Alert>}
         </Stack>
       </form>

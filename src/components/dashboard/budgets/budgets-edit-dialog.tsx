@@ -159,7 +159,7 @@ export default function BudgetsEditDialog({
                   editable={key !== 'surplus' && key !== 'recordedExpense'}
                   value={
                     key === 'recordedExpense'
-                      ? selectedBudget?.recordedExpense
+                      ? selectedBudget?.recordedExpense || 0
                       : key === 'surplus'
                         ? updatedBudget[0] -
                           updatedBudget[1] -

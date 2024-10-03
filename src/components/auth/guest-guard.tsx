@@ -14,18 +14,26 @@ export default function GuestGuard({
 }: {
   children: React.ReactNode;
 }) {
+  const [isChecking, setIsChecking] = React.useState(true);
   const token: string | null = getToken();
   const router = useRouter();
 
   const checkPermissions = () => {
     if (token) {
       router.replace(paths.dashboard.overview);
+      return;
     }
+
+    setIsChecking(false);
   };
 
   React.useEffect(() => {
     checkPermissions();
-  }, [checkPermissions, token, router]);
+  }, [token]);
+
+  if (isChecking) {
+    return null;
+  }
 
   return <>{children}</>;
 }
