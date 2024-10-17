@@ -1,3 +1,8 @@
+import {
+  recommendShoppingList,
+  sendShoppingListEmail,
+} from '@/lib/dashboard/offerClient';
+import { getOfferInfo } from '@/lib/utils';
 import useCustomizationStore from '@/store/customization';
 import { Offer } from '@/types/offer';
 import {
@@ -16,6 +21,7 @@ import {
   CardContent,
   CardHeader,
   Checkbox,
+  CircularProgress,
   Collapse,
   Divider,
   IconButton,
@@ -45,7 +51,7 @@ export default function OffersCart({
 }): React.ReactNode {
   const handleCheckboxChange = (
     store: string,
-    itemName: string,
+    id: string,
     checked: boolean
   ) => {
     operationProps.setOffers((prevOffers) => ({
@@ -53,18 +59,18 @@ export default function OffersCart({
       [store]: {
         ...prevOffers[store],
         items: prevOffers[store].items.map((item) =>
-          item.item === itemName ? { ...item, checked } : item
+          item.id === id ? { ...item, checked } : item
         ),
       },
     }));
   };
 
-  const handleDeleteItem = (store: string, itemName: string) => {
+  const handleDeleteItem = (store: string, id: string) => {
     operationProps.setOffers((prevOffers) => ({
       ...prevOffers,
       [store]: {
         ...prevOffers[store],
-        items: prevOffers[store].items.filter((item) => item.item !== itemName),
+        items: prevOffers[store].items.filter((item) => item.id !== id),
       },
     }));
   };
@@ -115,137 +121,228 @@ export default function OffersCart({
     (state) => state.getCurrencyString
   );
 
-  return (
-    <Card
-      className="sticky top-20 h-min w-1/4 min-w-min rounded-lg bg-white shadow"
-      sx={{
-        '& .MuiCardHeader-action': {
-          margin: 0,
-        },
-      }}
-    >
-      <CardHeader
-        className="items-center justify-between"
-        avatar={<ShoppingCart />}
-        titleTypographyProps={{ variant: 'h6', className: 'font-bold' }}
-        title="Cart"
-        action={
-          <Button
-            size="small"
-            variant="contained"
-            endIcon={<Star />}
-            className="m-0 ml-4"
-          >
-            Generate
-          </Button>
-        }
-      />
-      <Divider />
-      <CardContent>
-        {storesChosen.length > 0 ? (
-          <Stack spacing={1}>
-            {storesChosen.map((store, index) => (
-              <Stack key={store} spacing={1}>
-                <Stack
-                  direction="row"
-                  justifyContent="space-between"
-                  alignItems="center"
-                >
-                  <Typography variant="h6" className="font-semibold">
-                    {store}
-                  </Typography>
-                  <Stack direction="row" alignItems="center" spacing={1}>
-                    <Typography variant="body2" color="text.secondary">
-                      Total: {getCurrencyString(calculateTotal(store))}
-                    </Typography>
-                    <IconButton
-                      onClick={() => toggleDetails(store)}
-                      className="p-0"
-                    >
-                      {operationProps.offers[store]?.open ? (
-                        <ExpandMore />
-                      ) : (
-                        <ExpandLess />
-                      )}
-                    </IconButton>
-                  </Stack>
-                </Stack>
-                <Collapse in={operationProps.offers[store]?.open}>
-                  <Stack spacing={1}>
-                    {operationProps.offers[store]?.items
-                      .filter((item) => !item.checked)
-                      .map((item) => (
-                        <CartItem
-                          key={item.item}
-                          item={item}
-                          checked={item.checked}
-                          handleCheckboxChange={handleCheckboxChange}
-                          handleDeleteItem={handleDeleteItem}
-                          getCurrencyString={getCurrencyString}
-                        />
-                      ))}
-                    {operationProps.offers[store]?.items
-                      .filter((item) => item.checked)
-                      .map((item) => (
-                        <CartItem
-                          key={item.item}
-                          item={item}
-                          checked={item.checked}
-                          handleCheckboxChange={handleCheckboxChange}
-                          handleDeleteItem={handleDeleteItem}
-                          getCurrencyString={getCurrencyString}
-                        />
-                      ))}
-                  </Stack>
-                </Collapse>
-                {true && <Divider />}
-              </Stack>
-            ))}
-          </Stack>
-        ) : (
-          <Stack alignItems="center" spacing={2} className="py-4">
-            <RemoveShoppingCart color="disabled" />
-            <Typography variant="h6" className="font-semibold">
-              Oops! Your cart is empty.
-            </Typography>
-            <Typography variant="body1" color="text.secondary">
-              Let’s fill it with something great.
-            </Typography>
-          </Stack>
-        )}
-      </CardContent>
-      <Divider />
-      <CardContent>
-        <Stack alignItems="end" spacing={1}>
-          <Stack direction="row" spacing={4} alignItems="center">
-            <Typography variant="body1" className="font-semibold">
-              Weekly Budget
-            </Typography>
-            <Typography variant="body2" className="w-20 text-end">
-              {getCurrencyString(weeklyBudget)}
-            </Typography>
-          </Stack>
+  const sendShoppingList = async () => {
+    try {
+      const { message } = await sendShoppingListEmail({
+        shoppingList: storesChosen.map((store) => ({
+          storeName: store,
+          offers: operationProps.offers[store].items.map((item) => ({
+            ...item,
+            priceString: getCurrencyString(item.price),
+            offerInfo: getOfferInfo(
+              item.quantity,
+              item.unit,
+              item.unitRangeFrom,
+              item.unitRangeTo,
+              item.price,
+              getCurrencyString
+            ),
+          })),
+          total: getCurrencyString(calculateTotal(store)),
+        })),
+        total: getCurrencyString(total),
+        weeklyBudget: getCurrencyString(weeklyBudget),
+      });
+      if (message) {
+        throw new Error(message);
+      }
+    } catch (error: any) {
+      console.log(error.response?.data.detail || error.message);
+    }
+  };
 
-          {storesChosen.length > 0 && (
-            <Stack direction="row" spacing={4} alignItems="center">
-              <Typography variant="body1" className="font-semibold">
-                Total
+  const [isGeneratingList, setIsGeneratingList] = React.useState(false);
+  const generateShoppingList = async () => {
+    setIsGeneratingList(true);
+    try {
+      const { message, data } = await recommendShoppingList({
+        weeklyBudget: getCurrencyString(weeklyBudget),
+      });
+      if (message) {
+        throw new Error(message);
+      }
+
+      let shoppingListContent: {
+        [key: string]: {
+          open: boolean;
+          items: (Offer & { checked: boolean })[];
+        };
+      } = {};
+      if (data && data.items) {
+        data.items.forEach((item) => {
+          shoppingListContent[item.storeName] = {
+            items: [
+              ...(shoppingListContent[item.storeName]?.items || []),
+              { ...item, checked: false },
+            ],
+            open: true,
+          };
+        });
+        operationProps.setOffers(shoppingListContent);
+      }
+    } catch (error: any) {
+      console.log(error.response?.data.detail || error.message);
+    } finally {
+      setIsGeneratingList(false);
+    }
+  };
+  return (
+    <Box className="sticky top-20 h-min w-1/4">
+      <Card
+        className="rounded-lg bg-white shadow"
+        sx={{
+          '& .MuiCardHeader-action': {
+            margin: 0,
+          },
+        }}
+      >
+        <CardHeader
+          className="items-center justify-between"
+          avatar={<ShoppingCart />}
+          titleTypographyProps={{ variant: 'h6', className: 'font-bold' }}
+          title="Cart"
+          action={
+            <Tooltip title="Use AI to generate based on your budget">
+              <Button
+                size="small"
+                variant="contained"
+                endIcon={<Star />}
+                className="m-0 ml-4"
+                onClick={generateShoppingList}
+              >
+                Generate
+              </Button>
+            </Tooltip>
+          }
+        />
+        <Divider />
+        <CardContent>
+          {storesChosen.length > 0 ? (
+            <Stack spacing={1}>
+              {storesChosen.map((store, index) => (
+                <Stack key={store} spacing={1}>
+                  <Stack
+                    direction="row"
+                    justifyContent="space-between"
+                    alignItems="center"
+                  >
+                    <Typography variant="h6" className="font-semibold">
+                      {store}
+                    </Typography>
+                    <Stack direction="row" alignItems="center" spacing={1}>
+                      <Typography variant="body2" color="text.secondary">
+                        Total: {getCurrencyString(calculateTotal(store))}
+                      </Typography>
+                      <IconButton
+                        onClick={() => toggleDetails(store)}
+                        className="p-0"
+                      >
+                        {operationProps.offers[store]?.open ? (
+                          <ExpandMore />
+                        ) : (
+                          <ExpandLess />
+                        )}
+                      </IconButton>
+                    </Stack>
+                  </Stack>
+                  <Collapse in={operationProps.offers[store]?.open}>
+                    <Stack spacing={1}>
+                      {operationProps.offers[store]?.items
+                        .filter((item) => !item.checked)
+                        .map((item) => (
+                          <CartItem
+                            key={item.id}
+                            item={item}
+                            checked={item.checked}
+                            handleCheckboxChange={handleCheckboxChange}
+                            handleDeleteItem={handleDeleteItem}
+                            getCurrencyString={getCurrencyString}
+                          />
+                        ))}
+                      {operationProps.offers[store]?.items
+                        .filter((item) => item.checked)
+                        .map((item) => (
+                          <CartItem
+                            key={item.id}
+                            item={item}
+                            checked={item.checked}
+                            handleCheckboxChange={handleCheckboxChange}
+                            handleDeleteItem={handleDeleteItem}
+                            getCurrencyString={getCurrencyString}
+                          />
+                        ))}
+                    </Stack>
+                  </Collapse>
+                  {true && <Divider />}
+                </Stack>
+              ))}
+            </Stack>
+          ) : (
+            <Stack alignItems="center" spacing={2} className="py-4">
+              <RemoveShoppingCart color="disabled" />
+              <Typography variant="h6" className="font-semibold">
+                Oops! Your cart is empty.
               </Typography>
-              <Typography variant="body2" className="w-20 text-end">
-                {getCurrencyString(total)}
+              <Typography variant="body1" color="text.secondary">
+                Let’s fill it with something great.
               </Typography>
             </Stack>
           )}
-        </Stack>
-      </CardContent>
-      {storesChosen.length > 0 && (
-        <CardActions className="justify-end px-4 py-2">
-          <Button variant="contained" size="small">
-            Send
-          </Button>
-        </CardActions>
+        </CardContent>
+        <Divider />
+        <CardContent>
+          <Stack alignItems="end" spacing={1}>
+            <Stack direction="row" spacing={4} alignItems="center">
+              <Typography variant="body1" className="font-semibold">
+                Weekly Budget
+              </Typography>
+              <Typography variant="body2" className="w-20 text-end">
+                {getCurrencyString(weeklyBudget)}
+              </Typography>
+            </Stack>
+
+            {storesChosen.length > 0 && (
+              <Stack direction="row" spacing={4} alignItems="center">
+                <Typography variant="body1" className="font-semibold">
+                  Total
+                </Typography>
+                <Typography variant="body2" className="w-20 text-end">
+                  {getCurrencyString(total)}
+                </Typography>
+              </Stack>
+            )}
+          </Stack>
+        </CardContent>
+        {storesChosen.length > 0 && (
+          <CardActions className="justify-end px-4 py-2">
+            <Button
+              variant="contained"
+              size="small"
+              onClick={sendShoppingList}
+              disabled={total > weeklyBudget}
+            >
+              Send
+            </Button>
+          </CardActions>
+        )}
+      </Card>
+      {isGeneratingList && (
+        <Box
+          position="absolute"
+          display="flex"
+          flexDirection="column"
+          alignItems="center"
+          justifyContent="center"
+          bgcolor="rgba(255, 255, 255, 0.9)"
+          className="bottom-0 left-0 right-0 top-0 z-10 rounded-lg"
+        >
+          <CircularProgress />
+          <Typography variant="body2" color="text.secondary" mt={2}>
+            Generating shopping list...
+          </Typography>
+        </Box>
       )}
-    </Card>
+    </Box>
   );
 }
 
@@ -258,12 +355,8 @@ const CartItem = ({
 }: {
   item: Offer;
   checked: boolean;
-  handleCheckboxChange: (
-    store: string,
-    itemName: string,
-    checked: boolean
-  ) => void;
-  handleDeleteItem: (store: string, itemName: string) => void;
+  handleCheckboxChange: (store: string, id: string, checked: boolean) => void;
+  handleDeleteItem: (store: string, id: string) => void;
   getCurrencyString: (price: number) => string;
 }): React.ReactNode => {
   return (
@@ -286,7 +379,7 @@ const CartItem = ({
           indeterminate={checked}
           className="p-0"
           onChange={(e) =>
-            handleCheckboxChange(item.storeName, item.item, e.target.checked)
+            handleCheckboxChange(item.storeName, item.id, e.target.checked)
           }
         />
         <Tooltip title={item.item} placement="top" arrow>
@@ -295,7 +388,7 @@ const CartItem = ({
             noWrap
             className={`${checked ? 'line-through' : ''} cursor-pointer`}
             onClick={() =>
-              handleCheckboxChange(item.storeName, item.item, !checked)
+              handleCheckboxChange(item.storeName, item.id, !checked)
             }
           >
             {item.item}
@@ -310,7 +403,7 @@ const CartItem = ({
           <IconButton
             className="p-0"
             size="small"
-            onClick={() => handleDeleteItem(item.storeName, item.item)}
+            onClick={() => handleDeleteItem(item.storeName, item.id)}
           >
             <Close />
           </IconButton>

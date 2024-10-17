@@ -21,5 +21,8 @@ export interface Receipt {
   notes: string;
   fileName?: string;
   fileUrl?: string;
+  taskId?: string;
+  taskStatus?: 'PENDING' | 'STARTED' | 'RETRY' | 'FAILURE' | 'SUCCESS';
+  taskMessage?: string;
   items?: ReceiptItem[];
 }

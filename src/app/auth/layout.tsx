@@ -1,14 +1,42 @@
+'use client';
+
 import GuestGuard from '@/components/auth/guest-guard';
-import { Box, Stack, Typography } from '@mui/material';
+import { WarningOutlined } from '@mui/icons-material';
+import { Box, Modal, Stack, Typography } from '@mui/material';
+import { useEffect, useState } from 'react';
 
 export default function AuthLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const [openModal, setOpenModal] = useState(false);
+
+  useEffect(() => {
+    const checkDeviceAndOrientation = () => {
+      const isMobile =
+        /Android|webOS|iPhone|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+          navigator.userAgent
+        );
+      const isTablet =
+        /iPad/i.test(navigator.userAgent) ||
+        (/Android/i.test(navigator.userAgent) &&
+          !/Mobile/i.test(navigator.userAgent));
+      const isPortrait = window.innerHeight > window.innerWidth;
+
+      const shouldRestrict = isMobile || (isTablet && isPortrait);
+
+      setOpenModal(shouldRestrict);
+    };
+
+    checkDeviceAndOrientation();
+    window.addEventListener('resize', checkDeviceAndOrientation);
+    return () =>
+      window.removeEventListener('resize', checkDeviceAndOrientation);
+  }, []);
   return (
     <GuestGuard>
-      <Box className="flex min-h-full flex-col lg:grid lg:grid-cols-2">
+      <Box className="flex h-full flex-col lg:grid lg:grid-cols-2">
         <Box className="hidden items-center justify-center bg-[#122647] p-3 lg:flex">
           <Stack spacing={3} className="w-2/3">
             <Box className="flex justify-center">
@@ -29,12 +57,20 @@ export default function AuthLayout({
             </Stack>
           </Stack>
         </Box>
-        <Box className="flex items-center justify-center bg-[#f9fafc]">
+        <Box className="flex h-full items-center justify-center bg-[#f9fafc]">
           <Box className="w-2/3 rounded-lg border border-zinc-200 bg-white p-12 shadow">
             {children}
           </Box>
         </Box>
       </Box>
+      <Modal open={openModal} onClose={() => setOpenModal(false)}>
+        <Box className="absolute left-1/2 top-1/2 w-[300px] -translate-x-1/2 -translate-y-1/2 transform bg-white p-8 shadow-md">
+          <WarningOutlined className="text-red-500" />
+          <Typography id="mobile-warning-description" sx={{ mt: 2 }}>
+            Please use a computer to get the best experience
+          </Typography>
+        </Box>
+      </Modal>
     </GuestGuard>
   );
 }

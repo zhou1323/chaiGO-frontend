@@ -172,7 +172,7 @@ export default function SignUpPage() {
                 helperText={errors.password?.message}
                 onKeyUp={(e) => {
                   if (e.key === 'Enter') {
-                    handleSubmit(onSubmit);
+                    handleSubmit(onSubmit)();
                   }
                 }}
               ></TextField>

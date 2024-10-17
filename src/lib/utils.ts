@@ -54,3 +54,31 @@ export function getUnitPrice(
   }
   return [standardUnit, maxStandardUnitPrice.toFixed(2)];
 }
+
+export function getOfferInfo(
+  quantity: number,
+  unit: string,
+  unitRangeFrom: number,
+  unitRangeTo: number,
+  price: number,
+  getCurrencyString: (price: number) => string
+) {
+  const quantityString = quantity !== 1 ? `${quantity} x ` : '';
+  const unitRangeString =
+    unitRangeFrom === unitRangeTo
+      ? unitRangeFrom
+      : `${unitRangeFrom}-${unitRangeTo}`;
+  const unitString = unit;
+  const [standardUnit, maxStandardUnitPrice] = getUnitPrice(
+    unit,
+    quantity,
+    unitRangeFrom,
+    price
+  );
+
+  let unitPriceString = `${getCurrencyString(Number(maxStandardUnitPrice))}/${standardUnit}`;
+  if (unitRangeFrom !== unitRangeTo) {
+    unitPriceString = 'max ' + unitPriceString;
+  }
+  return `${quantityString}${unitRangeString}${unitString} * ${unitPriceString}`;
+}

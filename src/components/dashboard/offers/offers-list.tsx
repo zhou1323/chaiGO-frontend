@@ -3,7 +3,7 @@ import {
   GetOffersListParams,
   getOffersList,
 } from '@/lib/dashboard/offerClient';
-import { getUnitPrice } from '@/lib/utils';
+import { getOfferInfo } from '@/lib/utils';
 import { paths } from '@/paths';
 import useCustomizationStore from '@/store/customization';
 import { Offer } from '@/types/offer';
@@ -25,7 +25,7 @@ import {
   Typography,
 } from '@mui/material';
 import { useRouter } from 'next/navigation';
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 
 interface OperationProps {
   offers: {
@@ -81,21 +81,24 @@ export default function OffersList({
     onLoadMore: loadMoreOffers,
   });
 
-  useEffect(() => {
-    loadMoreOffers();
-  });
-
   const addToCart = (item: Offer) => {
     if (!operationProps) return;
     operationProps.setOffers((prevOffers) => {
       if (prevOffers[item.storeName]) {
+        const sameItem = prevOffers[item.storeName].items?.find(
+          (i) => i.item === item.item
+        );
         return {
           ...prevOffers,
           [item.storeName]: {
             ...prevOffers[item.storeName],
             items: [
               ...prevOffers[item.storeName].items,
-              { ...item, checked: false },
+              {
+                ...item,
+                id: sameItem ? `${item.id}-${Date.now()}` : item.id,
+                checked: false,
+              },
             ],
           },
         };
@@ -227,27 +230,6 @@ function OfferContent({
     (state) => state.getCurrencyString
   );
 
-  const getPriceString = (offer: Offer) => {
-    const quantityString = offer.quantity !== 1 ? `${offer.quantity} x ` : '';
-    const unitRangeString =
-      offer.unitRangeFrom === offer.unitRangeTo
-        ? offer.unitRangeFrom
-        : `${offer.unitRangeFrom}-${offer.unitRangeTo}`;
-    const unitString = offer.unit;
-    const [standardUnit, maxStandardUnitPrice] = getUnitPrice(
-      offer.unit,
-      offer.quantity,
-      offer.unitRangeFrom,
-      offer.price
-    );
-
-    let unitPriceString = `${getCurrencyString(Number(maxStandardUnitPrice))}/${standardUnit}`;
-    if (offer.unitRangeFrom !== offer.unitRangeTo) {
-      unitPriceString = 'max ' + unitPriceString;
-    }
-    return `${quantityString}${unitRangeString}${unitString} * ${unitPriceString}`;
-  };
-
   return (
     <Stack direction="row" spacing={2} className="items-center">
       <Box className="relative flex justify-center">
@@ -267,9 +249,27 @@ function OfferContent({
             className="font-bold"
           >{`${offer.itemEn}`}</Typography>
         </Tooltip>
-        <Tooltip title={getPriceString(offer)} placement="top" arrow>
-          <Typography variant="body2" className="mb-2 text-gray-500">
-            {getPriceString(offer)}
+        <Tooltip
+          title={getOfferInfo(
+            offer.quantity,
+            offer.unit,
+            offer.unitRangeFrom,
+            offer.unitRangeTo,
+            offer.price,
+            getCurrencyString
+          )}
+          placement="top"
+          arrow
+        >
+          <Typography variant="body2" className="mb-2 text-gray-500" noWrap>
+            {getOfferInfo(
+              offer.quantity,
+              offer.unit,
+              offer.unitRangeFrom,
+              offer.unitRangeTo,
+              offer.price,
+              getCurrencyString
+            )}
           </Typography>
         </Tooltip>
         <Chip

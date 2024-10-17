@@ -16,7 +16,10 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         <Box className="flex flex-auto flex-col">
           <MainNav handleNavOpen={() => setNavOpen(!navOpen)} />
           <main className="flex flex-auto flex-col bg-gray-50 p-6">
-            <Container maxWidth={false} className="flex-auto p-0">
+            <Container
+              maxWidth={false}
+              className="min-w-[1024px] flex-auto p-0"
+            >
               {children}
             </Container>
             <Footer />

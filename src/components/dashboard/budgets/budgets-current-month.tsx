@@ -3,7 +3,7 @@ import { getBudgetsCurrent } from '@/lib/dashboard/budgetClient';
 import { weeksLeftInMonth } from '@/lib/utils';
 import useCustomizationStore from '@/store/customization';
 import { Budget } from '@/types/budgets';
-import { ArrowDropDown, Settings } from '@mui/icons-material';
+import { ArrowDropDown, InfoOutlined, Settings } from '@mui/icons-material';
 import {
   Box,
   Card,
@@ -11,6 +11,7 @@ import {
   IconButton,
   LinearProgress,
   Stack,
+  Tooltip,
   Typography,
 } from '@mui/material';
 import * as React from 'react';
@@ -72,13 +73,15 @@ const BudgetsCurrentMonth = React.forwardRef<
   }, [currentBudget]);
 
   const expenseProgress = React.useMemo(() => {
-    if (!currentBudget) return 0;
+    if (!currentBudget || currentBudget.budget === 0) return 0;
     return Math.round((totalExpense / currentBudget.budget) * 100);
   }, [currentBudget, totalExpense]);
 
   const weeklyBudget = React.useMemo(() => {
-    if (!currentBudget || currentBudget.surplus < 0) return 0;
-    return Math.round(currentBudget.surplus / weeksLeftInMonth());
+    let weeksLeft = weeksLeftInMonth();
+    if (!currentBudget || currentBudget.surplus < 0 || weeksLeft === 0)
+      return 0;
+    return Math.round(currentBudget.surplus / weeksLeft);
   }, [currentBudget]);
 
   const countryCode = 'sv-SE';
@@ -185,9 +188,9 @@ const BudgetsCurrentMonth = React.forwardRef<
                 <Typography variant="overline">
                   Weekly: {getCurrencyString(weeklyBudget)}
                 </Typography>
-                <Typography variant="overline">
-                  ({weeksLeftInMonth()} weeks left)
-                </Typography>
+                <Tooltip title={`${weeksLeftInMonth()} weeks left`}>
+                  <InfoOutlined className="cursor-pointer text-xs font-normal" />
+                </Tooltip>
               </Stack>
             </Box>
           </CardContent>

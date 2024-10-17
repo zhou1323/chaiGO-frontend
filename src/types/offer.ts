@@ -22,3 +22,8 @@ export interface Offer {
   ordinaryPrice: number;
   storeName: string;
 }
+
+export interface OfferInShoppingList extends Offer {
+  priceString: string;
+  offerInfo: string;
+}

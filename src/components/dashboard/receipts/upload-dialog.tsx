@@ -22,11 +22,29 @@ export default function UploadDialog({
   uploadProps,
 }: UploadDialogProps): React.JSX.Element {
   const [images, setImages] = React.useState<ImageFile[]>([]);
+  const [isUploading, setIsUploading] = React.useState(false);
+
+  const handleDialogClose = () => {
+    setImages([]);
+    uploadProps.handleUploadClose();
+  };
+
+  const handleUpload = async () => {
+    setIsUploading(true);
+    try {
+      await uploadProps.handleUpload(images);
+      setImages([]);
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setIsUploading(false);
+    }
+  };
 
   return (
     <Dialog
       open={uploadProps.openUploadDialog}
-      onClose={uploadProps.handleUploadClose}
+      onClose={handleDialogClose}
       maxWidth="md"
       PaperProps={{
         className: 'w-full',
@@ -34,7 +52,7 @@ export default function UploadDialog({
     >
       <DialogTitle className="p-4">Upload receipts</DialogTitle>
       <IconButton
-        onClick={uploadProps.handleUploadClose}
+        onClick={handleDialogClose}
         className="absolute right-2 top-2"
       >
         <Close />
@@ -61,9 +79,10 @@ export default function UploadDialog({
       </DialogContent>
       <Divider />
       <DialogActions className="px-4 py-2">
-        <Button onClick={uploadProps.handleUploadClose}>Cancel</Button>
+        <Button onClick={handleDialogClose}>Cancel</Button>
         <Button
-          onClick={() => uploadProps.handleUpload(images)}
+          disabled={isUploading}
+          onClick={handleUpload}
           variant="contained"
         >
           Upload

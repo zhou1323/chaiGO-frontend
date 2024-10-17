@@ -7,10 +7,8 @@ import {
   Box,
   Button,
   FormControl,
-  FormHelperText,
-  InputLabel,
-  OutlinedInput,
   Stack,
+  TextField,
   Typography,
 } from '@mui/material';
 import { useRouter, useSearchParams } from 'next/navigation';
@@ -90,25 +88,22 @@ export default function ResetPasswordPage() {
                 name="password"
                 render={({ field }) => (
                   <FormControl error={Boolean(errors.password)}>
-                    <InputLabel>New password</InputLabel>
-                    <OutlinedInput
+                    <TextField
                       {...field}
                       label="New password"
                       type="password"
+                      error={!!errors.password}
+                      helperText={errors.password?.message}
                     />
-                    {errors.password && (
-                      <FormHelperText>{errors.password.message}</FormHelperText>
-                    )}
                   </FormControl>
                 )}
               />
               <FormControl>
-                <InputLabel>Repeat password</InputLabel>
-                <OutlinedInput
+                <TextField
+                  label="Confirm password"
+                  type="password"
                   value={repeatPassword}
                   onChange={(e) => setRepeatPassword(e.target.value)}
-                  label="Repeat password"
-                  type="password"
                 />
               </FormControl>
 
