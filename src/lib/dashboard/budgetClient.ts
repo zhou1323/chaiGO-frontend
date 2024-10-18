@@ -41,7 +41,7 @@ export function getBudgetsList(
 
 export function createBudget(data: CreateBudgetParams): Promise<BaseResponse> {
   return request({
-    url: '/api/v1/budgets',
+    url: '/api/v1/budgets/budget',
     method: 'POST',
     data,
   });
@@ -50,7 +50,7 @@ export function createBudget(data: CreateBudgetParams): Promise<BaseResponse> {
 export function updateBudget(data: UpdateBudgetParams): Promise<BaseResponse> {
   const { id } = data;
   return request({
-    url: `/api/v1/budgets/${id}`,
+    url: `/api/v1/budgets/budget/${id}`,
     method: 'PUT',
     data,
   });

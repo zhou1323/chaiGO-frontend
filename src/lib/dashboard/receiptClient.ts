@@ -42,7 +42,7 @@ export function getReceiptById(
 ): Promise<ApiResponse<Receipt>> {
   const { id } = data;
   return request({
-    url: `/api/v1/receipts/${id}`,
+    url: `/api/v1/receipts/receipt/${id}`,
     method: 'GET',
   });
 }
@@ -51,7 +51,7 @@ export function createReceipt(
   data: CreateReceiptParams
 ): Promise<ApiResponse<Receipt>> {
   return request({
-    url: '/api/v1/receipts',
+    url: '/api/v1/receipts/receipt',
     method: 'POST',
     data,
   });
@@ -62,7 +62,7 @@ export function updateReceipt(
 ): Promise<ApiResponse<Receipt>> {
   const { id } = data;
   return request({
-    url: `/api/v1/receipts/${id}`,
+    url: `/api/v1/receipts/receipt/${id}`,
     method: 'PUT',
     data,
   });
@@ -72,7 +72,7 @@ export function deleteReceipt(
   data: DeteleReceiptParams
 ): Promise<BaseResponse> {
   return request({
-    url: '/api/v1/receipts',
+    url: '/api/v1/receipts/receipt',
     method: 'DELETE',
     data,
   });
