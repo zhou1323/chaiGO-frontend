@@ -13,3 +13,10 @@ export const paths = {
     settings: '/dashboard/settings',
   },
 } as const;
+
+export function getLocalizedPath(path: string, locale: string) {
+  if (path === '/') {
+    return `/${locale}`;
+  }
+  return `/${locale}${path}`;
+}
