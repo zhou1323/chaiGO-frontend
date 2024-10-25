@@ -6,6 +6,7 @@ export enum Namespaces {
   translation = 'translation',
   auth = 'auth',
   dashboard = 'dashboard',
+  resetPassword = 'resetPassword',
 }
 
 export const cookieName = 'i18next';

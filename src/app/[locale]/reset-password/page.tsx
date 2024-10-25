@@ -1,4 +1,6 @@
 'use client';
+import { useTranslation } from '@/app/i18n/client';
+import { Namespaces } from '@/app/i18n/settings';
 import { resetPassword } from '@/lib/auth/client';
 import { getLocalizedPath, paths } from '@/paths';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -16,21 +18,22 @@ import * as React from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { z as zod } from 'zod';
 
-const schema = zod.object({
-  password: zod
-    .string()
-    .min(8, { message: 'Password should be at least 6 characters' }),
-});
+const createSchema = (t: (key: string) => string) =>
+  zod.object({
+    password: zod.string().min(8, { message: t('passwordMinLength') }),
+  });
 
-type Values = zod.infer<typeof schema>;
-
-const defaultValues: Values = { password: '' };
+const defaultValues = { password: '' } as const;
 
 export default function ResetPasswordPage({
   params: { locale },
 }: {
   params: { locale: string };
 }): React.ReactNode {
+  const { t } = useTranslation(locale, Namespaces.resetPassword);
+  const schema = React.useMemo(() => createSchema(t), [t]);
+  type Values = zod.infer<typeof schema>;
+
   const {
     control,
     setError,
@@ -50,7 +53,7 @@ export default function ResetPasswordPage({
     if (repeatPassword !== values.password) {
       setError('password', {
         type: 'manual',
-        message: 'Passwords do not match',
+        message: t('passwordsDoNotMatch'),
       });
       return;
     }
@@ -82,7 +85,7 @@ export default function ResetPasswordPage({
   return (
     <Box className="flex min-h-full flex-auto items-center justify-center p-3">
       <Stack spacing={4} className="w-full max-w-[450px]">
-        <Typography variant="h4">Reset password</Typography>
+        <Typography variant="h4">{t('resetPassword')}</Typography>
 
         {!hasSent ? (
           <form onSubmit={handleSubmit(onSubmit)}>
@@ -94,7 +97,7 @@ export default function ResetPasswordPage({
                   <FormControl error={Boolean(errors.password)}>
                     <TextField
                       {...field}
-                      label="New password"
+                      label={t('newPassword')}
                       type="password"
                       error={!!errors.password}
                       helperText={errors.password?.message}
@@ -104,7 +107,7 @@ export default function ResetPasswordPage({
               />
               <FormControl>
                 <TextField
-                  label="Confirm password"
+                  label={t('confirmPassword')}
                   type="password"
                   value={repeatPassword}
                   onChange={(e) => setRepeatPassword(e.target.value)}
@@ -115,15 +118,14 @@ export default function ResetPasswordPage({
                 <Alert severity="error">{errors.root.message}</Alert>
               )}
               <Button type="submit" variant="contained" disabled={isPending}>
-                Reset password
+                {t('resetPassword')}
               </Button>
             </Stack>
           </form>
         ) : (
           <Stack spacing={2}>
             <Typography variant="body1">
-              You have successfully reset your password. Please sign in with
-              your new password.
+              {t('successfullyResetPassword')}
             </Typography>
             <Button
               variant="contained"
@@ -131,7 +133,7 @@ export default function ResetPasswordPage({
                 router.push(getLocalizedPath(paths.auth.signIn, locale))
               }
             >
-              Return to sign in
+              {t('returnToSignIn')}
             </Button>
           </Stack>
         )}
