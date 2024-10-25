@@ -1,10 +1,11 @@
 'use client';
 
 import GuestGuard from '@/app/[locale]/components/auth/guest-guard';
+import { useTranslation } from '@/app/i18n/client';
+import { Namespaces } from '@/app/i18n/settings';
 import { WarningOutlined } from '@mui/icons-material';
 import { Box, Modal, Stack, Typography } from '@mui/material';
 import { useEffect, useState } from 'react';
-
 export default function AuthLayout({
   children,
   params: { locale },
@@ -13,7 +14,7 @@ export default function AuthLayout({
   params: { locale: string };
 }) {
   const [openModal, setOpenModal] = useState(false);
-
+  const { t } = useTranslation(locale, Namespaces.auth);
   useEffect(() => {
     const checkDeviceAndOrientation = () => {
       const isMobile =
@@ -53,8 +54,7 @@ export default function AuthLayout({
                 chaiGO
               </Typography>
               <Typography variant="h5" align="center" color="white">
-                A website that helps track where money goes and where it should
-                go.
+                {t('common.introduction')}
               </Typography>
             </Stack>
           </Stack>
@@ -69,7 +69,7 @@ export default function AuthLayout({
         <Box className="absolute left-1/2 top-1/2 w-[300px] -translate-x-1/2 -translate-y-1/2 transform bg-white p-8 shadow-md">
           <WarningOutlined className="text-red-500" />
           <Typography id="mobile-warning-description" sx={{ mt: 2 }}>
-            Please use a computer to get the best experience
+            {t('common.mobileWarning')}
           </Typography>
         </Box>
       </Modal>

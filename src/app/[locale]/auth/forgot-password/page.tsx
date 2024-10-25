@@ -1,4 +1,6 @@
 'use client';
+import { useTranslation } from '@/app/i18n/client';
+import { Namespaces } from '@/app/i18n/settings';
 import { recoverPassword } from '@/lib/auth/client';
 import { getLocalizedPath, paths } from '@/paths';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -16,19 +18,25 @@ import * as React from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { z as zod } from 'zod';
 
-const schema = zod.object({
-  email: zod.string().min(1, { message: 'Email is required' }).email(),
-});
+const createSchema = (t: (key: string) => string) =>
+  zod.object({
+    email: zod
+      .string()
+      .min(1, { message: t('common.emailRequired') })
+      .email({ message: t('common.invalidEmail') }),
+  });
 
-type Values = zod.infer<typeof schema>;
-
-const defaultValues: Values = { email: '' };
+const defaultValues = { email: '' } as const;
 
 export default function ForgotPasswordPage({
   params: { locale },
 }: {
   params: { locale: string };
 }) {
+  const { t } = useTranslation(locale, Namespaces.auth);
+  const schema = React.useMemo(() => createSchema(t), [t]);
+  type Values = zod.infer<typeof schema>;
+
   const {
     control,
     setError,
@@ -74,11 +82,11 @@ export default function ForgotPasswordPage({
           <ArrowBack />
         </IconButton>
         <Typography variant="body1" className="text-gray-500">
-          Sign in
+          {t('signIn.title')}
         </Typography>
       </Stack>
       <Typography variant="h4" className="font-bold">
-        Reset password
+        {t('forgotPassword.title')}
       </Typography>
 
       {!hasSent ? (
@@ -96,7 +104,7 @@ export default function ForgotPasswordPage({
                 render={({ field }) => (
                   <TextField
                     {...field}
-                    label="Email address"
+                    label={t('common.email')}
                     type="email"
                     size="small"
                     error={!!errors.email}
@@ -114,15 +122,11 @@ export default function ForgotPasswordPage({
             variant="contained"
             disabled={isPending}
           >
-            Send recovery link
+            {t('forgotPassword.sendRecoveryLink')}
           </Button>
         </>
       ) : (
-        <Typography variant="body1">
-          We have sent an email with a password reset link to your registered
-          email address. Please check your email and follow the instructions to
-          complete the password reset process.
-        </Typography>
+        <Typography variant="body1">{t('forgotPassword.emailSent')}</Typography>
       )}
     </Stack>
   );

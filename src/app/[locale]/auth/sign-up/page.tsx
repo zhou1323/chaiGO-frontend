@@ -1,4 +1,6 @@
 'use client';
+import { useTranslation } from '@/app/i18n/client';
+import { Namespaces } from '@/app/i18n/settings';
 import { getVerificationCode } from '@/lib/auth/client';
 import { getLocalizedPath, paths } from '@/paths';
 import useUserStore from '@/store/user';
@@ -11,31 +13,35 @@ import * as React from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { z as zod } from 'zod';
 
-const schema = zod.object({
-  email: zod.string().min(1, { message: 'Email is required' }).email(),
-  password: zod
-    .string()
-    .min(8, { message: 'Password should be at least 8 characters' }),
-  username: zod.string().min(1, { message: 'Username is required' }),
-  verificationCode: zod
-    .string()
-    .length(6, { message: 'Verification code should be 6 characters' }),
-});
-
-type Values = zod.infer<typeof schema>;
+const createSchema = (t: (key: string) => string) =>
+  zod.object({
+    email: zod
+      .string()
+      .min(1, { message: t('common.emailRequired') })
+      .email({ message: t('common.invalidEmail') }),
+    password: zod.string().min(8, { message: t('common.passwordMinLength') }),
+    username: zod.string().min(1, { message: t('common.usernameRequired') }),
+    verificationCode: zod
+      .string()
+      .length(6, { message: t('common.verificationCodeLength') }),
+  });
 
 const defaultValues = {
   username: '',
   email: '',
   password: '',
   verificationCode: '',
-} satisfies Values;
+} as const;
 
 export default function SignUpPage({
   params: { locale },
 }: {
   params: { locale: string };
 }) {
+  const { t } = useTranslation(locale, Namespaces.auth);
+  const schema = React.useMemo(() => createSchema(t), [t]);
+  type Values = zod.infer<typeof schema>;
+
   const {
     control,
     handleSubmit,
@@ -57,7 +63,7 @@ export default function SignUpPage({
       const email = getValues('email');
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       if (!emailRegex.test(email)) {
-        setError('email', { message: 'Invalid email' });
+        setError('email', { message: `${t('common.invalidEmail')}` });
         return;
       }
 
@@ -113,17 +119,17 @@ export default function SignUpPage({
     <Stack spacing={1}>
       <Stack spacing={1}>
         <Typography variant="h4" className="font-bold">
-          Sign up
+          {t('signUp.title')}
         </Typography>
         <Typography variant="body2" className="text-gray-500">
-          Already have an account?{' '}
+          {t('signUp.alreadyHaveAnAccount')}
           <Link
             component={RouterLink}
             href={getLocalizedPath(paths.auth.signIn, locale)}
             variant="subtitle2"
             underline="hover"
           >
-            Sign in
+            {t('signIn.title')}
           </Link>
         </Typography>
       </Stack>
@@ -137,7 +143,7 @@ export default function SignUpPage({
               <TextField
                 {...field}
                 size="small"
-                label="Username"
+                label={t('common.username')}
                 error={!!errors.username}
                 helperText={errors.username?.message}
               ></TextField>
@@ -151,7 +157,7 @@ export default function SignUpPage({
               <TextField
                 {...field}
                 size="small"
-                label="Email address"
+                label={t('common.email')}
                 type="email"
                 error={!!errors.email}
                 helperText={errors.email?.message}
@@ -170,7 +176,7 @@ export default function SignUpPage({
               <TextField
                 {...field}
                 size="small"
-                label="Password"
+                label={t('common.password')}
                 type="password"
                 error={!!errors.password}
                 helperText={errors.password?.message}
@@ -192,7 +198,7 @@ export default function SignUpPage({
                   {...field}
                   className="flex-1"
                   size="small"
-                  label="Verification code"
+                  label={t('common.verificationCode')}
                   error={!!errors.verificationCode}
                   helperText={errors.verificationCode?.message}
                 ></TextField>
@@ -206,8 +212,8 @@ export default function SignUpPage({
               onClick={handleSendVerificationCode}
             >
               {isRequestingVerificationCode
-                ? `Request (${countdown})`
-                : 'Request'}
+                ? `${t('common.request')} (${countdown})`
+                : t('common.request')}
             </Button>
           </Stack>
           {errors.root && <Alert severity="error">{errors.root.message}</Alert>}
@@ -218,7 +224,7 @@ export default function SignUpPage({
         variant="contained"
         onClick={handleSubmit(onSubmit)}
       >
-        Sign up
+        {t('signUp.title')}
       </Button>
     </Stack>
   );

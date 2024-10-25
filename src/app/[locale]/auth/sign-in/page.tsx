@@ -1,5 +1,7 @@
 'use client';
 
+import { useTranslation } from '@/app/i18n/client';
+import { Namespaces } from '@/app/i18n/settings';
 import { getCaptcha } from '@/lib/auth/client';
 import { getLocalizedPath, paths } from '@/paths';
 import useUserStore from '@/store/user';
@@ -26,25 +28,31 @@ import * as React from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { z as zod } from 'zod';
 
-const schema = zod.object({
-  email: zod.string().min(1, { message: 'Email is required' }).email(),
-  password: zod.string().min(1, { message: 'Password is required' }),
-  captcha: zod.string().min(1, { message: 'Captcha is required' }),
-});
+const createSchema = (t: (key: string) => string) =>
+  zod.object({
+    email: zod
+      .string()
+      .min(1, { message: t('common.emailRequired') })
+      .email({ message: t('common.invalidEmail') }),
+    password: zod.string().min(1, { message: t('common.passwordRequired') }),
+    captcha: zod.string().min(1, { message: t('common.captchaRequired') }),
+  });
 
-type Values = zod.infer<typeof schema>;
-
-const defaultValues: Values = {
+const defaultValues = {
   email: 'test@chaigo.com',
   password: 'password',
   captcha: '',
-};
+} as const;
 
 export default function SignInPage({
   params: { locale },
 }: {
   params: { locale: string };
 }) {
+  const { t } = useTranslation(locale, Namespaces.auth);
+  const schema = React.useMemo(() => createSchema(t), [t]);
+  type Values = zod.infer<typeof schema>;
+
   const {
     control,
     setValue,
@@ -118,7 +126,7 @@ export default function SignInPage({
       <Stack spacing={1}>
         <Box className="flex items-center justify-between">
           <Typography variant="h4" className="font-bold">
-            Welcome
+            {t('signIn.welcome')}
           </Typography>
           <Link
             href="https://github.com/zhou1323/chaiGO"
@@ -137,13 +145,13 @@ export default function SignInPage({
         </Box>
 
         <Typography variant="body2" className="text-gray-500">
-          Don&apos;t have an account?{' '}
+          {t('signIn.noAccount')}
           <Link
             component={RouterLink}
             href={getLocalizedPath(paths.auth.signUp, locale)}
             variant="body2"
           >
-            Sign up
+            {t('signUp.title')}
           </Link>
         </Typography>
       </Stack>
@@ -156,14 +164,14 @@ export default function SignInPage({
             render={({ field }) => (
               <Box>
                 <Typography variant="subtitle1" className="mb-2">
-                  Email
+                  {t('common.email')}
                 </Typography>
                 <TextField
                   {...field}
                   fullWidth
                   hiddenLabel
                   size="small"
-                  placeholder="Enter your email"
+                  placeholder={t('common.emailPlaceholder')}
                   type="email"
                   error={!!errors.email}
                   helperText={errors.email?.message}
@@ -179,7 +187,7 @@ export default function SignInPage({
               <Box>
                 <Box className="flex justify-between">
                   <Typography variant="subtitle1" className="mb-2">
-                    Password
+                    {t('common.password')}
                   </Typography>
 
                   <Link
@@ -187,7 +195,7 @@ export default function SignInPage({
                     href={getLocalizedPath(paths.auth.forgotPassword, locale)}
                     variant="subtitle2"
                   >
-                    Forgot password?
+                    {t('common.forgotPassword')}
                   </Link>
                 </Box>
                 <TextField
@@ -195,7 +203,7 @@ export default function SignInPage({
                   fullWidth
                   hiddenLabel
                   size="small"
-                  placeholder="Enter your password"
+                  placeholder={t('common.passwordPlaceholder')}
                   type={showPassword ? 'text' : 'password'}
                   error={!!errors.password}
                   helperText={errors.password?.message}
@@ -245,8 +253,12 @@ export default function SignInPage({
                   error={Boolean(errors.captcha)}
                   className="flex-auto"
                 >
-                  <InputLabel>Captcha</InputLabel>
-                  <OutlinedInput {...field} label="Captcha" type="text" />
+                  <InputLabel>{t('common.captcha')}</InputLabel>
+                  <OutlinedInput
+                    {...field}
+                    label={t('common.captcha')}
+                    type="text"
+                  />
                 </FormControl>
               )}
             ></Controller>
@@ -271,7 +283,7 @@ export default function SignInPage({
         color="primary"
         onClick={handleSubmit(onSubmit)}
       >
-        Sign in
+        {t('signIn.title')}
       </Button>
     </Stack>
   );
