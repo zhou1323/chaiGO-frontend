@@ -6,31 +6,31 @@ import {
 } from '@mui/icons-material';
 export const categories = [
   {
-    label: 'Groceries',
+    label: 'receipts.groceries',
     value: 'groceries',
   },
   {
-    label: 'Transport',
+    label: 'receipts.transport',
     value: 'transport',
   },
   {
-    label: 'Entertainment',
+    label: 'receipts.entertainment',
     value: 'entertainment',
   },
   {
-    label: 'Health',
+    label: 'receipts.health',
     value: 'health',
   },
   {
-    label: 'Clothing',
+    label: 'receipts.clothing',
     value: 'clothing',
   },
   {
-    label: 'Education',
+    label: 'receipts.education',
     value: 'education',
   },
   {
-    label: 'Other',
+    label: 'receipts.other',
     value: 'other',
   },
 ];
@@ -43,66 +43,66 @@ export const receiptsTableColumns: {
 }[] = [
   {
     key: 'date',
-    label: 'Date',
+    label: 'common.date',
     align: 'left',
     sorting: true,
   },
   {
     key: 'description',
-    label: 'Description',
+    label: 'common.description',
     align: 'left',
   },
   {
     key: 'category',
-    label: 'Category',
+    label: 'common.category',
     align: 'center',
   },
   {
     key: 'amount',
-    label: 'Amount',
+    label: 'common.amount',
     align: 'left',
     sorting: true,
   },
   {
     key: 'notes',
-    label: 'Notes',
+    label: 'common.notes',
     align: 'left',
   },
   {
     key: 'status',
-    label: 'Status',
+    label: 'common.status',
     align: 'center',
   },
   {
     key: 'actions',
-    label: 'Actions',
+    label: 'common.actions',
     align: 'center',
   },
 ];
 
 export const receiptsTaskStatuses = {
   PENDING: {
-    label: 'Pending',
+    label: 'common.pending',
     color: 'warning',
     icon: PendingOutlined,
   },
   STARTED: {
-    label: 'Started',
+    label: 'common.started',
     color: 'primary',
     icon: ScheduleOutlined,
   },
   RETRY: {
-    label: 'Retry',
+    label: 'common.retry',
     color: 'warning',
     icon: ScheduleOutlined,
   },
   FAILURE: {
-    label: 'Failure',
+    label: 'common.failure',
     color: 'error',
     icon: HighlightOffOutlined,
   },
   SUCCESS: {
-    label: 'Success',
+    label: 'common.success',
     color: 'success',
     icon: CheckCircleOutline,
   },

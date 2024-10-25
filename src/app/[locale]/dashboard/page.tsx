@@ -5,6 +5,8 @@ import OffersList from '@/app/[locale]/components/dashboard/offers/offers-list';
 import OverviewBudgetChart, {
   BudgetsOverviewRef,
 } from '@/app/[locale]/components/dashboard/overview/overview-budget-chart';
+import { useTranslation } from '@/app/i18n/client';
+import { Namespaces } from '@/app/i18n/settings';
 import { Stack, Typography } from '@mui/material';
 import * as React from 'react';
 
@@ -13,6 +15,8 @@ export default function Page({
 }: {
   params: { locale: string };
 }): React.ReactNode {
+  const { t } = useTranslation(locale, Namespaces.dashboard);
+
   const overviewBudget = React.useRef<BudgetsOverviewRef>(null);
 
   const afterUpdateCurrent = () => {
@@ -24,7 +28,7 @@ export default function Page({
       <Stack direction="row" spacing={3}>
         <Stack className="flex-auto">
           <Typography variant="h4" className="font-bold">
-            Overview
+            {t('overview.title')}
           </Typography>
         </Stack>
       </Stack>
@@ -32,6 +36,7 @@ export default function Page({
       <BudgetsCurrentMonth
         direction="row"
         onRefresh={afterUpdateCurrent}
+        locale={locale}
       ></BudgetsCurrentMonth>
 
       <Stack direction="row" spacing={2} className="h-[36rem]">

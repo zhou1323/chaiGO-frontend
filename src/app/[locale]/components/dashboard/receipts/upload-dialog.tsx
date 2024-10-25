@@ -1,4 +1,6 @@
 import ImageUpload from '@/app/[locale]/components/core/image-upload';
+import { useTranslation } from '@/app/i18n/client';
+import { Namespaces } from '@/app/i18n/settings';
 import { ImageFile } from '@/types/imageFile';
 import { Close } from '@mui/icons-material';
 import { Divider, IconButton, Stack } from '@mui/material';
@@ -16,11 +18,14 @@ interface UploadDialogProps {
     handleUploadClose: () => void;
     handleUpload: (files: ImageFile[]) => Promise<void>;
   };
+  locale: string;
 }
 
 export default function UploadDialog({
   uploadProps,
+  locale,
 }: UploadDialogProps): React.JSX.Element {
+  const { t } = useTranslation(locale, Namespaces.dashboard);
   const [images, setImages] = React.useState<ImageFile[]>([]);
   const [isUploading, setIsUploading] = React.useState(false);
 
@@ -50,7 +55,7 @@ export default function UploadDialog({
         className: 'w-full',
       }}
     >
-      <DialogTitle className="p-4">Upload receipts</DialogTitle>
+      <DialogTitle className="p-4">{t('receipts.uploadReceipts')}</DialogTitle>
       <IconButton
         onClick={handleDialogClose}
         className="absolute right-2 top-2"
@@ -61,7 +66,7 @@ export default function UploadDialog({
       <DialogContent className="p-4">
         <Stack spacing={1}>
           <DialogContentText>
-            Upload your receipts here. You can upload up to 5MB of files.
+            {t('receipts.uploadDescription')}
           </DialogContentText>
 
           <ImageUpload
@@ -72,20 +77,19 @@ export default function UploadDialog({
           />
 
           <DialogContentText>
-            *Current supported: credit card statements from China Construction
-            Bank, and receipts from Lidl and Willys.
+            {t('receipts.supportedReceipts')}
           </DialogContentText>
         </Stack>
       </DialogContent>
       <Divider />
       <DialogActions className="px-4 py-2">
-        <Button onClick={handleDialogClose}>Cancel</Button>
+        <Button onClick={handleDialogClose}>{t('common.cancel')}</Button>
         <Button
           disabled={isUploading}
           onClick={handleUpload}
           variant="contained"
         >
-          Upload
+          {t('common.upload')}
         </Button>
       </DialogActions>
     </Dialog>

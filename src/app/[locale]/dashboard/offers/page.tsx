@@ -2,6 +2,8 @@
 
 import OffersCart from '@/app/[locale]/components/dashboard/offers/offers-cart';
 import OffersList from '@/app/[locale]/components/dashboard/offers/offers-list';
+import { useTranslation } from '@/app/i18n/client';
+import { Namespaces } from '@/app/i18n/settings';
 import { getBudgetsCurrent } from '@/lib/dashboard/budgetClient';
 import { weeksLeftInMonth } from '@/lib/utils';
 import { Budget } from '@/types/budgets';
@@ -14,6 +16,7 @@ export default function OffersPage({
 }: {
   params: { locale: string };
 }): React.ReactNode {
+  const { t } = useTranslation(locale, Namespaces.dashboard);
   const [category, setCategory] = React.useState<string>('');
   const filterProps = {
     category,
@@ -58,7 +61,7 @@ export default function OffersPage({
   return (
     <Stack spacing={2}>
       <Typography variant="h4" className="font-bold">
-        Offers
+        {t('offers.title')}
       </Typography>
       <Stack direction="row" spacing={2} className="relative">
         <Stack flex={1}>
@@ -69,6 +72,7 @@ export default function OffersPage({
         <OffersCart
           operationProps={operationProps}
           weeklyBudget={weeklyBudget}
+          locale={locale}
         />
       </Stack>
     </Stack>

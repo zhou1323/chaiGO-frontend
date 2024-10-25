@@ -1,6 +1,6 @@
 export const categories = [
   {
-    label: 'Fruit',
+    label: 'offers.fruit',
     value: 'fruit',
   },
 ];

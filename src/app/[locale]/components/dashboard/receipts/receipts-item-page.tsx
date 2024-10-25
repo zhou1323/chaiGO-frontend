@@ -1,6 +1,8 @@
 'use client';
 
 import ImageUpload from '@/app/[locale]/components/core/image-upload';
+import { useTranslation } from '@/app/i18n/client';
+import { Namespaces } from '@/app/i18n/settings';
 import { generatePresignedUrl } from '@/lib/auth/client';
 import {
   CreateReceiptParams,
@@ -39,7 +41,6 @@ import axios from 'axios';
 import dayjs from 'dayjs';
 import * as React from 'react';
 import {
-  Control,
   Controller,
   FieldError,
   FieldPath,
@@ -54,29 +55,33 @@ const categoryValues: [string, string] = categories.map((c) => c.value) as [
   string,
 ];
 
-const schema = zod.object({
-  date: zod.string().date(),
-  description: zod.string().min(1, { message: 'Description is required' }),
-  category: zod.enum(categoryValues),
-  notes: zod.string(),
-  fileName: zod.string().nullable().optional(),
-  items: zod.array(
-    zod.object({
-      item: zod.string().min(1, { message: 'Item is required' }),
-      quantity: zod.coerce.number().min(0, { message: 'Quantity is required' }),
-      unit: zod.string().min(1, { message: 'Unit is required' }),
-      unitPrice: zod.coerce
-        .number()
-        .min(0.01, { message: 'Unit price is required' }),
-      discountPrice: zod.coerce
-        .number()
-        .min(0, { message: 'Discount price is required' }),
-      notes: zod.string(),
-    })
-  ),
-});
-
-type Values = zod.infer<typeof schema>;
+const createSchema = (t: (key: string) => string) => {
+  return zod.object({
+    date: zod.string().date(),
+    description: zod
+      .string()
+      .min(1, { message: t('common.descriptionRequired') }),
+    category: zod.enum(categoryValues),
+    notes: zod.string(),
+    fileName: zod.string().nullable().optional(),
+    items: zod.array(
+      zod.object({
+        item: zod.string().min(1, { message: t('common.itemRequired') }),
+        quantity: zod.coerce
+          .number()
+          .min(0, { message: t('common.quantityRequired') }),
+        unit: zod.string().min(1, { message: t('common.unitRequired') }),
+        unitPrice: zod.coerce
+          .number()
+          .min(0.01, { message: t('common.unitPriceRequired') }),
+        discountPrice: zod.coerce
+          .number()
+          .min(0, { message: t('common.discountPriceRequired') }),
+        notes: zod.string(),
+      })
+    ),
+  });
+};
 
 const defaultValues = {
   date: dayjs().format('YYYY-MM-DD'),
@@ -85,7 +90,7 @@ const defaultValues = {
   notes: '',
   fileName: '',
   items: [],
-} satisfies Values;
+} as const;
 
 const defaultItemValues = {
   item: '',
@@ -102,19 +107,27 @@ export default function ReceiptsItemPage({
   receiptId = '',
   toAdd = false,
   toEdit = false,
+  locale,
 }: {
   returnReceiptsList: () => void;
   receiptId?: string;
   toAdd: boolean;
   toEdit: boolean;
+  locale: string;
 }): React.JSX.Element {
+  const { t } = useTranslation(locale, Namespaces.dashboard);
+  const schema = createSchema(t);
+  type Values = zod.infer<typeof schema>;
+
   // Current receipt detail
-  const [receiptDetail, setReceiptDetail] =
-    React.useState<Values>(defaultValues);
-  const [isPending, setIsPending] = React.useState(false);
+  const [receiptDetail, setReceiptDetail] = React.useState<Values>({
+    ...defaultValues,
+    items: [],
+  });
+  const [isPending, setIsPending] = React.useState<boolean>(false);
 
   // Control the editable state
-  const [editable, setEditable] = React.useState(toAdd);
+  const [editable, setEditable] = React.useState<boolean>(toAdd);
   const cancelEdit = () => {
     setEditable(false);
     getReceiptDetail(receiptId);
@@ -234,7 +247,7 @@ export default function ReceiptsItemPage({
     control,
     formState: { errors },
   } = useForm<Values>({
-    defaultValues,
+    defaultValues: { ...defaultValues, items: [] },
     values: receiptDetail,
     resolver: zodResolver(schema),
   });
@@ -264,15 +277,15 @@ export default function ReceiptsItemPage({
         <IconButton onClick={returnReceiptsList}>
           <KeyboardReturn></KeyboardReturn>
         </IconButton>
-        <Typography variant="h6">Receipts</Typography>
+        <Typography variant="h6">{t('receipts.title')}</Typography>
       </Stack>
       <Stack direction="row" justifyContent="space-between" alignItems="center">
         <Typography variant="h5" className="font-bold">
-          Receipt detail
+          {t('receipts.details')}
         </Typography>
         {toEdit && (
           <Button variant="contained" onClick={() => setEditable(true)}>
-            Edit
+            {t('common.edit')}
           </Button>
         )}
       </Stack>
@@ -292,7 +305,7 @@ export default function ReceiptsItemPage({
                     variant="subtitle1"
                     className="min-w-24 font-semibold"
                   >
-                    Date
+                    {t('common.date')}
                   </Typography>
                   {editable ? (
                     <Controller
@@ -346,7 +359,7 @@ export default function ReceiptsItemPage({
                     variant="subtitle1"
                     className="min-w-24 font-semibold"
                   >
-                    Category
+                    {t('common.category')}
                   </Typography>
                   {editable ? (
                     <Controller
@@ -393,7 +406,7 @@ export default function ReceiptsItemPage({
                     variant="subtitle1"
                     className="min-w-24 font-semibold"
                   >
-                    Description
+                    {t('common.description')}
                   </Typography>
                   {editable ? (
                     <Controller
@@ -425,7 +438,7 @@ export default function ReceiptsItemPage({
                     variant="subtitle1"
                     className="min-w-24 font-semibold"
                   >
-                    Notes
+                    {t('common.notes')}
                   </Typography>
                   {editable ? (
                     <Controller
@@ -465,7 +478,7 @@ export default function ReceiptsItemPage({
           <Divider className="my-4" />
           <Stack spacing={2}>
             <Typography variant="h6" className="font-semibold">
-              Items
+              {t('receipts.items')}
             </Typography>
 
             <Table>
@@ -501,7 +514,7 @@ export default function ReceiptsItemPage({
                               name={
                                 `items.${index}.${key}` as FieldPath<Values>
                               }
-                              label={key}
+                              label={t(`receipts.${key}`)}
                               type={
                                 key === 'quantity' ||
                                 key === 'unitPrice' ||
@@ -537,14 +550,14 @@ export default function ReceiptsItemPage({
                 startIcon={<Add />}
                 onClick={() => append(defaultItemValues)}
               >
-                Add item
+                {t('receipts.addItem')}
               </Button>
             )}
           </Stack>
           <Stack alignItems="end" spacing={6} paddingTop={3}>
             <Stack direction="row" spacing={10}>
               <Typography variant="h6" className="font-semibold">
-                Total
+                {t('common.total')}
               </Typography>
               <Typography variant="h6">{getCurrencyString(amount)}</Typography>
             </Stack>
@@ -554,7 +567,7 @@ export default function ReceiptsItemPage({
                 <>
                   {toEdit && (
                     <Button variant="outlined" onClick={cancelEdit}>
-                      Cancel
+                      {t('common.cancel')}
                     </Button>
                   )}
                   <Button
@@ -562,7 +575,7 @@ export default function ReceiptsItemPage({
                     type="submit"
                     disabled={isPending}
                   >
-                    Save
+                    {t('common.save')}
                   </Button>
                 </>
               )}
@@ -578,7 +591,7 @@ const ReceiptAmountItem = ({
   control,
   index,
 }: {
-  control: Control<Values>;
+  control: any;
   index: number;
 }) => {
   const data = useWatch({
@@ -601,8 +614,8 @@ const ReceiptInputItem = ({
   type,
   maxLength = 20,
 }: {
-  control: Control<Values>;
-  name: FieldPath<Values>;
+  control: any;
+  name: any;
   error: FieldError | undefined;
   label: string;
   editable: boolean;

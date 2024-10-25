@@ -5,6 +5,8 @@ import BudgetsCurrentMonth, {
 import BudgetsEditDialog from '@/app/[locale]/components/dashboard/budgets/budgets-edit-dialog';
 import BudgetsFilter from '@/app/[locale]/components/dashboard/budgets/budgets-filter';
 import BudgetsTable from '@/app/[locale]/components/dashboard/budgets/budgets-table';
+import { useTranslation } from '@/app/i18n/client';
+import { Namespaces } from '@/app/i18n/settings';
 import { getBudgetsList } from '@/lib/dashboard/budgetClient';
 import { Budget, BudgetFilterParams } from '@/types/budgets';
 
@@ -17,6 +19,7 @@ export default function BudgetPage({
 }: {
   params: { locale: string };
 }) {
+  const { t } = useTranslation(locale, Namespaces.dashboard);
   // Params to filter budgets
   const [filter, setFilter] = React.useState<BudgetFilterParams>({});
 
@@ -116,10 +119,10 @@ export default function BudgetPage({
       <Stack spacing={2}>
         <Stack direction="row" alignItems="center">
           <Typography variant="h4" className="flex-1 font-bold">
-            Budgets
+            {t('budgets.title')}
           </Typography>
           <Button startIcon={<Add />} variant="contained" onClick={addBudget}>
-            Add
+            {t('common.add')}
           </Button>
         </Stack>
 
@@ -127,12 +130,14 @@ export default function BudgetPage({
           <BudgetsCurrentMonth
             direction="column"
             onRefresh={getBudgets}
+            locale={locale}
             ref={currentBudget}
           ></BudgetsCurrentMonth>
           <Stack spacing={2} className="flex-auto">
             <BudgetsFilter
               doFilter={getBudgets}
               filterProps={filterProps}
+              locale={locale}
             ></BudgetsFilter>
             <BudgetsTable
               rows={budgets}
@@ -149,6 +154,7 @@ export default function BudgetPage({
         open={openDialog}
         onClose={handleDialog}
         selectedBudget={selectedBudget}
+        locale={locale}
       ></BudgetsEditDialog>
     </>
   );

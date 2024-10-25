@@ -1,3 +1,5 @@
+import { useTranslation } from '@/app/i18n/client';
+import { Namespaces } from '@/app/i18n/settings';
 import { ReceiptFilterParams } from '@/types/receipt';
 import { Delete, Search } from '@mui/icons-material';
 import {
@@ -15,10 +17,12 @@ import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import dayjs from 'dayjs';
 import { categories } from './config';
+
 export default function ReceiptsFilter({
   doFilter,
   filterProps,
   deletionProps,
+  locale,
 }: {
   doFilter: () => void;
   filterProps: {
@@ -29,7 +33,10 @@ export default function ReceiptsFilter({
     selected: Set<string>;
     handleDeleteReceipt: (ids: string[]) => void;
   };
+  locale: string;
 }): React.JSX.Element {
+  const { t } = useTranslation(locale, Namespaces.dashboard);
+
   const clearFilters = () => {
     filterProps.setFilter({});
   };
@@ -38,9 +45,9 @@ export default function ReceiptsFilter({
     <Card className="rounded-lg bg-white p-4 shadow">
       <Stack direction="row" spacing={1}>
         <FormControl size="small">
-          <InputLabel>Search description</InputLabel>
+          <InputLabel>{t('receipts.searchDescription')}</InputLabel>
           <OutlinedInput
-            label="Search description"
+            label={t('receipts.searchDescription')}
             inputProps={{ maxLength: 20 }}
             value={filterProps.filter.description || ''}
             onChange={(e) =>
@@ -57,9 +64,9 @@ export default function ReceiptsFilter({
           />
         </FormControl>
         <FormControl className="w-44" size="small">
-          <InputLabel>Category</InputLabel>
+          <InputLabel>{t('common.category')}</InputLabel>
           <Select
-            label="Category"
+            label={t('common.category')}
             value={filterProps.filter.category || ''}
             variant="outlined"
             onChange={(e) =>
@@ -70,11 +77,11 @@ export default function ReceiptsFilter({
             }
           >
             <MenuItem value="">
-              <em>All</em>
+              <em>{t('common.all')}</em>
             </MenuItem>
             {categories.map((category) => (
               <MenuItem key={category.value} value={category.value}>
-                {category.label}
+                {t(category.label)}
               </MenuItem>
             ))}
           </Select>
@@ -85,7 +92,7 @@ export default function ReceiptsFilter({
               textField: { size: 'small' },
             }}
             className="w-44"
-            label="Start date"
+            label={t('common.startDate')}
             value={
               filterProps.filter.startDate
                 ? dayjs(filterProps.filter.startDate)
@@ -103,7 +110,7 @@ export default function ReceiptsFilter({
             slotProps={{
               textField: { size: 'small' },
             }}
-            label="End date"
+            label={t('common.endDate')}
             className="w-44"
             value={
               filterProps.filter.endDate
@@ -124,7 +131,7 @@ export default function ReceiptsFilter({
           onClick={clearFilters}
           className="w-20"
         >
-          Reset
+          {t('common.reset')}
         </Button>
         <Button
           variant="contained"
@@ -132,7 +139,7 @@ export default function ReceiptsFilter({
           className="mr-3 w-20"
           onClick={doFilter}
         >
-          Search
+          {t('common.search')}
         </Button>
 
         <Button

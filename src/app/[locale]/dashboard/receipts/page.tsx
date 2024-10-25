@@ -4,7 +4,11 @@ import ReceiptsItemPage from '@/app/[locale]/components/dashboard/receipts/recei
 import ReceiptsPage from '@/app/[locale]/components/dashboard/receipts/receipts-page';
 import * as React from 'react';
 
-export default function Page() {
+export default function Page({
+  params: { locale },
+}: {
+  params: { locale: string };
+}) {
   const [showReceiptsList, setShowReceiptsList] = React.useState(true);
   const [receiptId, setReceiptId] = React.useState('');
   const [toAdd, setToAdd] = React.useState(false);
@@ -29,13 +33,18 @@ export default function Page() {
   };
 
   return showReceiptsList ? (
-    <ReceiptsPage handleAdd={handleAdd} handleEdit={handleEdit} />
+    <ReceiptsPage
+      handleAdd={handleAdd}
+      handleEdit={handleEdit}
+      locale={locale}
+    />
   ) : (
     <ReceiptsItemPage
       returnReceiptsList={returnReceiptsList}
       receiptId={receiptId}
       toAdd={toAdd}
       toEdit={toEdit}
+      locale={locale}
     />
   );
 }

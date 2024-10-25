@@ -1,3 +1,5 @@
+import { useTranslation } from '@/app/i18n/client';
+import { Namespaces } from '@/app/i18n/settings';
 import useInfiniteScroll from '@/hooks/use-infinite-scroll';
 import {
   GetOffersListParams,
@@ -47,6 +49,7 @@ export default function OffersList({
   isMinimal?: boolean;
   locale: string;
 }): React.ReactNode {
+  const { t } = useTranslation(locale, Namespaces.dashboard);
   const [offers, setOffers] = useState<Offer[]>([]);
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
@@ -123,6 +126,7 @@ export default function OffersList({
           isLoading={isLoading}
           loaderRef={loaderRef}
           locale={locale}
+          t={t}
         />
       ) : (
         <OrdinaryList
@@ -141,16 +145,18 @@ function MinimalList({
   isLoading,
   loaderRef,
   locale,
+  t,
 }: {
   offers: Offer[];
   isLoading: boolean;
   loaderRef: React.RefObject<HTMLDivElement>;
   locale: string;
+  t: (key: string) => string;
 }) {
   const router = useRouter();
   return (
     <Card className="flex w-1/3 flex-col">
-      <CardHeader title="Offers" />
+      <CardHeader title={t('offers.title')} />
       <Divider />
       <CardContent className="flex-1 overflow-y-auto">
         <Stack spacing={2}>
@@ -179,7 +185,7 @@ function MinimalList({
             router.push(getLocalizedPath(paths.dashboard.offers, locale))
           }
         >
-          View all
+          {t('common.viewAll')}
         </Button>
       </CardActions>
     </Card>

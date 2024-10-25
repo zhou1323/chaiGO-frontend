@@ -1,3 +1,5 @@
+import { useTranslation } from '@/app/i18n/client';
+import { Namespaces } from '@/app/i18n/settings';
 import {
   recommendShoppingList,
   sendShoppingListEmail,
@@ -45,10 +47,13 @@ interface OperationProps {
 export default function OffersCart({
   operationProps,
   weeklyBudget,
+  locale,
 }: {
   operationProps: OperationProps;
   weeklyBudget: number;
+  locale: string;
 }): React.ReactNode {
+  const { t } = useTranslation(locale, Namespaces.dashboard);
   const handleCheckboxChange = (
     store: string,
     id: string,
@@ -76,7 +81,6 @@ export default function OffersCart({
   };
 
   const toggleDetails = (store: string) => {
-    console.log(operationProps.offers);
     if (operationProps.offers[store]) {
       operationProps.setOffers((prevOffers) => ({
         ...prevOffers,
@@ -200,9 +204,9 @@ export default function OffersCart({
           className="items-center justify-between"
           avatar={<ShoppingCart />}
           titleTypographyProps={{ variant: 'h6', className: 'font-bold' }}
-          title="Cart"
+          title={t('offers.cart')}
           action={
-            <Tooltip title="Use AI to generate based on your budget">
+            <Tooltip title={t('offers.generateTips')}>
               <Button
                 size="small"
                 variant="contained"
@@ -210,7 +214,7 @@ export default function OffersCart({
                 className="m-0 ml-4"
                 onClick={generateShoppingList}
               >
-                Generate
+                {t('offers.generate')}
               </Button>
             </Tooltip>
           }
@@ -231,7 +235,8 @@ export default function OffersCart({
                     </Typography>
                     <Stack direction="row" alignItems="center" spacing={1}>
                       <Typography variant="body2" color="text.secondary">
-                        Total: {getCurrencyString(calculateTotal(store))}
+                        {t('common.total')}:{' '}
+                        {getCurrencyString(calculateTotal(store))}
                       </Typography>
                       <IconButton
                         onClick={() => toggleDetails(store)}
@@ -281,10 +286,10 @@ export default function OffersCart({
             <Stack alignItems="center" spacing={2} className="py-4">
               <RemoveShoppingCart color="disabled" />
               <Typography variant="h6" className="font-semibold">
-                Oops! Your cart is empty.
+                {t('offers.emptyCart')}
               </Typography>
               <Typography variant="body1" color="text.secondary">
-                Let’s fill it with something great.
+                {t('offers.fillCart')}
               </Typography>
             </Stack>
           )}
@@ -294,7 +299,7 @@ export default function OffersCart({
           <Stack alignItems="end" spacing={1}>
             <Stack direction="row" spacing={4} alignItems="center">
               <Typography variant="body1" className="font-semibold">
-                Weekly Budget
+                {t('offers.weeklyBudget')}
               </Typography>
               <Typography variant="body2" className="w-20 text-end">
                 {getCurrencyString(weeklyBudget)}
@@ -304,7 +309,7 @@ export default function OffersCart({
             {storesChosen.length > 0 && (
               <Stack direction="row" spacing={4} alignItems="center">
                 <Typography variant="body1" className="font-semibold">
-                  Total
+                  {t('common.total')}
                 </Typography>
                 <Typography variant="body2" className="w-20 text-end">
                   {getCurrencyString(total)}
@@ -321,7 +326,7 @@ export default function OffersCart({
               onClick={sendShoppingList}
               disabled={total > weeklyBudget}
             >
-              Send
+              {t('common.send')}
             </Button>
           </CardActions>
         )}
@@ -338,7 +343,7 @@ export default function OffersCart({
         >
           <CircularProgress />
           <Typography variant="body2" color="text.secondary" mt={2}>
-            Generating shopping list...
+            {t('offers.generating')}
           </Typography>
         </Box>
       )}

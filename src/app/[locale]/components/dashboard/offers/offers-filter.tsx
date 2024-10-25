@@ -1,3 +1,5 @@
+import { useTranslation } from '@/app/i18n/client';
+import { Namespaces } from '@/app/i18n/settings';
 import ClearIcon from '@mui/icons-material/Clear';
 import {
   Button,
@@ -18,22 +20,25 @@ export interface OffersFilterProps {
 
 export default function OffersFilter({
   filterProps,
+  locale,
 }: {
   filterProps: OffersFilterProps;
+  locale: string;
 }): React.ReactNode {
+  const { t } = useTranslation(locale, Namespaces.dashboard);
   return (
     <Card className="mb-4 rounded-lg bg-white p-4 shadow">
       <Stack direction="row" spacing={1}>
         <FormControl className="w-44" size="small">
           <InputLabel>Category</InputLabel>
           <Select
-            label="Category"
+            label={t('common.category')}
             variant="outlined"
             value={filterProps.category}
             onChange={(e) => filterProps.setCategory(e.target.value)}
           >
             <MenuItem value="">
-              <em>All</em>
+              <em>{t('common.all')}</em>
             </MenuItem>
             {categories.map((category) => (
               <MenuItem key={category.value} value={category.value}>
@@ -47,7 +52,7 @@ export default function OffersFilter({
           onClick={() => filterProps.setCategory('')}
         >
           <ClearIcon />
-          Clear
+          {t('common.clear')}
         </Button>
       </Stack>
     </Card>

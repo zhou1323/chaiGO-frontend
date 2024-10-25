@@ -32,7 +32,7 @@ export default function Layout({
             >
               {children}
             </Container>
-            <Footer />
+            <Footer locale={locale} />
           </main>
         </Box>
       </Box>

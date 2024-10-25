@@ -1,4 +1,6 @@
 'use client';
+import { useTranslation } from '@/app/i18n/client';
+import { Namespaces } from '@/app/i18n/settings';
 import { getLocalizedPath } from '@/paths';
 import {
   Box,
@@ -34,6 +36,7 @@ const NavItem = ({
   const pathName = usePathname();
   const Icon = icon;
   const router = useRouter();
+  const { t } = useTranslation(locale, Namespaces.dashboard);
   return (
     <ListItemButton
       selected={pathName === path}
@@ -46,7 +49,7 @@ const NavItem = ({
       >
         <Icon />
       </ListItemIcon>
-      <ListItemText>{label}</ListItemText>
+      <ListItemText>{t(label)}</ListItemText>
     </ListItemButton>
   );
 };

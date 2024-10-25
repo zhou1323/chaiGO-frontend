@@ -1,3 +1,5 @@
+import { useTranslation } from '@/app/i18n/client';
+import { Namespaces } from '@/app/i18n/settings';
 import { getLocalizedPath, paths } from '@/paths';
 import useCustomizationStore from '@/store/customization';
 import { Budget } from '@/types/budgets';
@@ -44,6 +46,7 @@ export default function BudgetTable({
   paginationProps,
   locale,
 }: BudgetTableProps) {
+  const { t } = useTranslation(locale, Namespaces.dashboard);
   const getFirstAndLastDateOfMonth = (dateString: string) => {
     const date = new Date(dateString);
     const firstDate = new Date(date.getFullYear(), date.getMonth(), 1);
@@ -90,10 +93,10 @@ export default function BudgetTable({
                       }
                       onClick={() => sortingProps.handleRequestSort(column.key)}
                     >
-                      {column.label}
+                      {t(column.label)}
                     </TableSortLabel>
                   ) : (
-                    <>{column.label}</>
+                    <>{t(column.label)}</>
                   )}
                 </TableCell>
               ))}
@@ -125,7 +128,7 @@ export default function BudgetTable({
                       variant="text"
                       onClick={() => selectBudget({ ...row })}
                     >
-                      Edit
+                      {t('common.edit')}
                     </Button>
                   </TableCell>
                 </TableRow>

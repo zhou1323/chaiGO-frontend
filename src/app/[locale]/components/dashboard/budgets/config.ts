@@ -1,40 +1,40 @@
 export const budgetTableColumns = [
   {
     key: 'date',
-    label: 'Date',
+    label: 'budgets.date',
     align: 'left',
   },
   {
     key: 'budget',
-    label: 'Budget',
+    label: 'budgets.budget',
     align: 'left',
     sorting: true,
   },
   {
     key: 'recordedExpense',
-    label: 'Recorded Expense',
+    label: 'budgets.recordedExpense',
     align: 'left',
     sorting: true,
   },
   {
     key: 'otherExpense',
-    label: 'Other Expense',
+    label: 'budgets.otherExpense',
     align: 'left',
     sorting: true,
   },
   {
     key: 'surplus',
-    label: 'Surplus',
+    label: 'budgets.surplus',
     align: 'left',
     sorting: true,
   },
   {
     key: 'notes',
-    label: 'Notes',
+    label: 'budgets.notes',
   },
   {
     key: 'actions',
-    label: 'Actions',
+    label: 'common.actions',
     align: 'center',
   },
 ];

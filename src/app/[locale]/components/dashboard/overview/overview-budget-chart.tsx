@@ -1,4 +1,6 @@
 'use client';
+import { useTranslation } from '@/app/i18n/client';
+import { Namespaces } from '@/app/i18n/settings';
 import { getBudgetsOverview } from '@/lib/dashboard/budgetClient';
 import { getLocalizedPath, paths } from '@/paths';
 import { BudgetsOverview } from '@/types/budgets';
@@ -33,6 +35,7 @@ const OverviewBudgetChart = React.forwardRef<
   BudgetsOverviewRef,
   { locale: string }
 >(function OverviewBudgetChart({ locale }, ref) {
+  const { t } = useTranslation(locale, Namespaces.dashboard);
   const [budgets, setBudgets] = React.useState<BudgetsOverview[]>([]);
   const getBudgetsOverviewData = async () => {
     try {
@@ -75,7 +78,7 @@ const OverviewBudgetChart = React.forwardRef<
 
   return (
     <Card className="flex h-full w-2/3 flex-col">
-      <CardHeader title="Analysis" />
+      <CardHeader title={t('overview.analysis')} />
       <Divider />
       <CardContent className="flex-1">
         <ResponsiveChartContainer
@@ -84,21 +87,21 @@ const OverviewBudgetChart = React.forwardRef<
               scaleType: 'band',
               data: monthsAxis.map((month) => month.label),
               id: 'month',
-              label: 'Month',
+              label: t('common.months'),
             },
           ]}
           yAxis={[{ id: 'money' }]}
           series={[
             {
               type: 'bar',
-              label: 'budget',
+              label: t('common.budget'),
               id: 'budget',
               yAxisId: 'money',
               data: paddedBudgets.map((item) => item.currentYear?.budget || 0),
             },
             {
               type: 'line',
-              label: 'expenses(last year)',
+              label: t('overview.expensesLastYear'),
               id: 'lastYear',
               yAxisId: 'money',
               data: paddedBudgets.map((item) =>
@@ -110,7 +113,7 @@ const OverviewBudgetChart = React.forwardRef<
             {
               type: 'line',
               id: 'thisYear',
-              label: 'expenses(this year)',
+              label: t('overview.expensesThisYear'),
               yAxisId: 'money',
               data: paddedBudgets.map((item) =>
                 item.currentYear
@@ -130,8 +133,8 @@ const OverviewBudgetChart = React.forwardRef<
         >
           <BarPlot />
           <LinePlot />
-          <ChartsXAxis axisId="month" label="Month" />
-          <ChartsYAxis axisId="money" label="Money" />
+          <ChartsXAxis axisId="month" label={t('common.months')} />
+          <ChartsYAxis axisId="money" label={t('common.money')} />
           <ChartsLegend />
           {/* Circles show each data point */}
           <MarkPlot />
@@ -151,7 +154,7 @@ const OverviewBudgetChart = React.forwardRef<
             router.push(getLocalizedPath(paths.dashboard.budgets, locale))
           }
         >
-          View all
+          {t('common.viewAll')}
         </Button>
       </CardActions>
     </Card>

@@ -1,3 +1,5 @@
+import { useTranslation } from '@/app/i18n/client';
+import { Namespaces } from '@/app/i18n/settings';
 import { ReceiptFilterParams } from '@/types/receipt';
 import { Button, Card, Stack } from '@mui/material';
 import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
@@ -10,12 +12,15 @@ interface BudgetsFilterProps {
     filter: ReceiptFilterParams;
     setFilter: (filter: ReceiptFilterParams) => void;
   };
+  locale: string;
 }
 
 export default function BudgetsFilter({
   doFilter,
   filterProps,
+  locale,
 }: BudgetsFilterProps): React.JSX.Element {
+  const { t } = useTranslation(locale, Namespaces.dashboard);
   const clearFilters = () => {
     filterProps.setFilter({});
   };
@@ -29,7 +34,7 @@ export default function BudgetsFilter({
               textField: { size: 'small' },
             }}
             className="w-48"
-            label="Start date"
+            label={t('common.startDate')}
             views={['month', 'year']}
             value={
               filterProps.filter.startDate
@@ -48,7 +53,7 @@ export default function BudgetsFilter({
             slotProps={{
               textField: { size: 'small' },
             }}
-            label="End date"
+            label={t('common.endDate')}
             className="w-48"
             views={['month', 'year']}
             value={
@@ -71,7 +76,7 @@ export default function BudgetsFilter({
           onClick={clearFilters}
           className="w-20"
         >
-          Reset
+          {t('common.reset')}
         </Button>
         <Button
           variant="contained"
@@ -79,7 +84,7 @@ export default function BudgetsFilter({
           className="mr-3 w-20"
           onClick={doFilter}
         >
-          Search
+          {t('common.search')}
         </Button>
       </Stack>
     </Card>

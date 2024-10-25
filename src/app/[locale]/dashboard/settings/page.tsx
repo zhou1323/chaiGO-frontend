@@ -2,6 +2,8 @@
 
 import SettingsPassword from '@/app/[locale]/components/dashboard/settings/settings-password';
 import SettingsProfile from '@/app/[locale]/components/dashboard/settings/settings-profile';
+import { useTranslation } from '@/app/i18n/client';
+import { Namespaces } from '@/app/i18n/settings';
 import { Box, Stack, Tab, Tabs, Typography } from '@mui/material';
 import * as React from 'react';
 
@@ -33,6 +35,7 @@ export default function SettingPage({
 }: {
   params: { locale: string };
 }): React.ReactNode {
+  const { t } = useTranslation(locale, Namespaces.dashboard);
   const [value, setValue] = React.useState(0);
 
   const handleChange = (event: React.SyntheticEvent, newValue: number) => {
@@ -43,7 +46,7 @@ export default function SettingPage({
     <Stack spacing={2} alignItems="start">
       <Stack direction="row">
         <Typography variant="h4" className="flex-auto font-bold">
-          Settings
+          {t('settings.title')}
         </Typography>
       </Stack>
       <Box className="h-10 rounded-md bg-zinc-100 p-1">
@@ -52,10 +55,10 @@ export default function SettingPage({
           onChange={handleChange}
           TabIndicatorProps={{ className: 'hidden' }}
         >
-          {['Profile', 'Password'].map((label, index) => (
+          {['profile', 'password'].map((label, index) => (
             <Tab
               key={index}
-              label={label}
+              label={t(`settings.tabs.${label}`)}
               disableRipple
               className={`min-h-8 min-w-20 rounded-sm px-3 py-1.5 text-sm font-semibold normal-case ${value === index ? 'bg-white text-[#09090b]' : 'bg-transparent text-[#71717a]'}`}
             />
@@ -63,7 +66,7 @@ export default function SettingPage({
         </Tabs>
       </Box>
       <CustomTabPanel value={value} index={0}>
-        <SettingsProfile></SettingsProfile>
+        <SettingsProfile locale={locale}></SettingsProfile>
       </CustomTabPanel>
       <CustomTabPanel value={value} index={1}>
         <SettingsPassword locale={locale}></SettingsPassword>

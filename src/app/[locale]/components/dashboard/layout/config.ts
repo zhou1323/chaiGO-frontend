@@ -18,31 +18,31 @@ export interface NavItemProps {
 export const navItems = [
   {
     key: 'overview',
-    label: 'Overview',
+    label: 'overview.title',
     path: paths.dashboard.overview,
     icon: Assessment,
   },
   {
     key: 'offers',
-    label: 'Offers',
+    label: 'offers.title',
     path: paths.dashboard.offers,
     icon: LocalOffer,
   },
   {
     key: 'budgets',
-    label: 'Budgets',
+    label: 'budgets.title',
     path: paths.dashboard.budgets,
     icon: Leaderboard,
   },
   {
     key: 'receipts',
-    label: 'Receipts',
+    label: 'receipts.title',
     path: paths.dashboard.receipts,
     icon: Receipt,
   },
   {
     key: 'settings',
-    label: 'Settings',
+    label: 'settings.title',
     path: paths.dashboard.settings,
     icon: Settings,
   },

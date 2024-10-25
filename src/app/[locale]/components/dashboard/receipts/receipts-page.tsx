@@ -1,6 +1,8 @@
 'use client';
 import ReceiptsFilter from '@/app/[locale]/components/dashboard/receipts/receipts-filter';
 import ReceiptsTable from '@/app/[locale]/components/dashboard/receipts/receipts-table';
+import { useTranslation } from '@/app/i18n/client';
+import { Namespaces } from '@/app/i18n/settings';
 import { useSelection } from '@/hooks/use-selection';
 import { generatePresignedUrl } from '@/lib/auth/client';
 import {
@@ -21,10 +23,13 @@ import UploadDialog from './upload-dialog';
 export default function ReceiptsPage({
   handleAdd,
   handleEdit,
+  locale,
 }: {
   handleAdd: () => void;
   handleEdit: (id: string) => void;
+  locale: string;
 }): React.JSX.Element {
+  const { t } = useTranslation(locale, Namespaces.dashboard);
   // Receipt
   const [receipts, setReceipts] = React.useState<Receipt[]>([]);
   const search = async () => {
@@ -203,7 +208,7 @@ export default function ReceiptsPage({
       <Stack direction="row" spacing={3} alignItems="center">
         <Stack className="flex-auto">
           <Typography variant="h4" className="font-bold">
-            Receipts
+            {t('receipts.title')}
           </Typography>
         </Stack>
         <Stack direction="row" spacing={1}>
@@ -212,14 +217,14 @@ export default function ReceiptsPage({
             color="primary"
             onClick={() => setOpenUploadDialog(true)}
           >
-            Upload
+            {t('common.upload')}
           </Button>
           {/* TODO: Implement download */}
           {/* <Button startIcon={<FileDownload />} color="primary">
             Download
           </Button> */}
           <Button startIcon={<Add />} variant="contained" onClick={handleAdd}>
-            Add
+            {t('common.add')}
           </Button>
         </Stack>
       </Stack>
@@ -228,6 +233,7 @@ export default function ReceiptsPage({
         filterProps={filterProps}
         deletionProps={deletionProps}
         doFilter={search}
+        locale={locale}
       />
 
       <ReceiptsTable
@@ -236,9 +242,10 @@ export default function ReceiptsPage({
         selectionProps={selectionProps}
         rows={receipts}
         editReceipt={handleEdit}
+        locale={locale}
       />
 
-      <UploadDialog uploadProps={uploadProps} />
+      <UploadDialog uploadProps={uploadProps} locale={locale} />
     </Stack>
   );
 }

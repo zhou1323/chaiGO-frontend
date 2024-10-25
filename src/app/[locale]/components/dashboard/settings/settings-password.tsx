@@ -1,3 +1,5 @@
+import { useTranslation } from '@/app/i18n/client';
+import { Namespaces } from '@/app/i18n/settings';
 import { updatePasswordMe } from '@/lib/dashboard/userClient';
 import { getLocalizedPath, paths } from '@/paths';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -21,29 +23,34 @@ import { useRouter } from 'next/navigation';
 import * as React from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { z as zod } from 'zod';
-const schema = zod
-  .object({
-    currentPassword: zod
-      .string()
-      .min(8, { message: 'Password should be at least 8 characters' })
-      .max(40, { message: 'Password should be at most 40 characters' }),
-    newPassword: zod
-      .string()
-      .min(8, { message: 'Password should be at least 8 characters' })
-      .max(40, { message: 'Password should be at most 40 characters' }),
-    confirmPassword: zod
-      .string()
-      .min(8, { message: 'Password should be at least 8 characters' })
-      .max(40, { message: 'Password should be at most 40 characters' }),
-  })
-  .refine((data) => data.newPassword === data.confirmPassword, {
-    path: ['confirmPassword'],
-    message: 'Passwords do not match',
-  });
 
-type Values = zod.infer<typeof schema>;
+const createSchema = (t: (key: string) => string) => {
+  return zod
+    .object({
+      currentPassword: zod
+        .string()
+        .min(8, { message: t('settings.passwordMinLength') })
+        .max(40, { message: t('settings.passwordMaxLength') }),
+      newPassword: zod
+        .string()
+        .min(8, { message: t('settings.passwordMinLength') })
+        .max(40, { message: t('settings.passwordMaxLength') }),
+      confirmPassword: zod
+        .string()
+        .min(8, { message: t('settings.passwordMinLength') })
+        .max(40, { message: t('settings.passwordMaxLength') }),
+    })
+    .refine((data) => data.newPassword === data.confirmPassword, {
+      path: ['confirmPassword'],
+      message: t('settings.passwordsDoNotMatch'),
+    });
+};
 
 export default function SettingsPassword({ locale }: { locale: string }) {
+  const { t } = useTranslation(locale, Namespaces.dashboard);
+  const schema = React.useMemo(() => createSchema(t), [t]);
+  type Values = zod.infer<typeof schema>;
+
   const [dialogOpen, setDialogOpen] = React.useState(false);
   const defaultValues: Values = {
     currentPassword: '',
@@ -82,13 +89,15 @@ export default function SettingsPassword({ locale }: { locale: string }) {
 
   return (
     <Card className="w-1/2">
-      <CardHeader title="Change Password" />
+      <CardHeader title={t('settings.passwordHeader')} />
       <Divider />
       <CardContent>
         <form>
           <Stack spacing={2}>
             <Box>
-              <Typography className="font-bold">Current Password</Typography>
+              <Typography className="font-bold">
+                {t('settings.currentPassword')}
+              </Typography>
               <Controller
                 control={control}
                 name="currentPassword"
@@ -107,7 +116,9 @@ export default function SettingsPassword({ locale }: { locale: string }) {
               />
             </Box>
             <Box>
-              <Typography className="font-bold">Set Password</Typography>
+              <Typography className="font-bold">
+                {t('settings.newPassword')}
+              </Typography>
               <Controller
                 control={control}
                 name="newPassword"
@@ -126,7 +137,9 @@ export default function SettingsPassword({ locale }: { locale: string }) {
               />
             </Box>
             <Box>
-              <Typography className="font-bold">Confirm Password</Typography>
+              <Typography className="font-bold">
+                {t('settings.confirmPassword')}
+              </Typography>
               <Controller
                 control={control}
                 name="confirmPassword"
@@ -155,17 +168,15 @@ export default function SettingsPassword({ locale }: { locale: string }) {
           className="w-20"
           onClick={handleSubmit(onSubmit)}
         >
-          Save
+          {t('common.save')}
         </Button>
       </CardActions>
 
       <Dialog open={dialogOpen}>
-        <DialogTitle>Password updated</DialogTitle>
+        <DialogTitle>{t('settings.passwordUpdated')}</DialogTitle>
         <DialogContent>
           <Stack spacing={5} className="items-center">
-            <Typography>
-              You will be redirected to the sign in page in 3 seconds...
-            </Typography>
+            <Typography>{t('settings.successfullyResetPassword')}</Typography>
             <CircularProgress color="inherit" />
           </Stack>
         </DialogContent>

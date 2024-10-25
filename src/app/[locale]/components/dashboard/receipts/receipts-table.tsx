@@ -1,3 +1,5 @@
+import { useTranslation } from '@/app/i18n/client';
+import { Namespaces } from '@/app/i18n/settings';
 import useCustomizationStore from '@/store/customization';
 import { Receipt } from '@/types/receipt';
 import { ArrowForward, CheckCircleOutline } from '@mui/icons-material';
@@ -19,7 +21,6 @@ import {
 import dayjs from 'dayjs';
 import * as React from 'react';
 import { receiptsTableColumns, receiptsTaskStatuses } from './config';
-
 interface ReceiptsTableProps {
   paginationProps: {
     page: number;
@@ -44,6 +45,7 @@ interface ReceiptsTableProps {
   };
   rows: Receipt[];
   editReceipt: (id: string) => void;
+  locale: string;
 }
 
 export default function ReceiptsTable({
@@ -52,7 +54,9 @@ export default function ReceiptsTable({
   selectionProps,
   rows = [],
   editReceipt,
+  locale,
 }: ReceiptsTableProps): React.JSX.Element {
+  const { t } = useTranslation(locale, Namespaces.dashboard);
   const selectedAll = selectionProps.selected.size === rows.length;
   const selectedSome = selectionProps.selected.size > 0 && !selectedAll;
 
@@ -100,10 +104,10 @@ export default function ReceiptsTable({
                       }
                       onClick={() => sortingProps.handleRequestSort(column.key)}
                     >
-                      {column.label}
+                      {t(column.label)}
                     </TableSortLabel>
                   ) : (
-                    <>{column.label}</>
+                    <>{t(column.label)}</>
                   )}
                 </TableCell>
               ))}

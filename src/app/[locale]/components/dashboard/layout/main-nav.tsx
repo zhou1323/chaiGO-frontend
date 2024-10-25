@@ -106,6 +106,7 @@ export default function MainNav({
             user={user}
             handleSignOut={handleSignOut}
             locale={locale}
+            t={t}
           />
         </Stack>
       </Stack>
@@ -120,6 +121,7 @@ const UserMenu = ({
   user,
   handleSignOut,
   locale,
+  t,
 }: {
   anchorRef: React.MutableRefObject<HTMLElement | null>;
   open: boolean;
@@ -127,6 +129,7 @@ const UserMenu = ({
   user: User | null;
   handleSignOut: () => void;
   locale: string;
+  t: any;
 }) => {
   return (
     <Popover
@@ -153,13 +156,13 @@ const UserMenu = ({
         >
           <ListItemIcon>
             <Settings className="mr-3" />
-            Settings
+            {t('settings.title')}
           </ListItemIcon>
         </MenuItem>
         <MenuItem onClick={handleSignOut}>
           <ListItemIcon>
             <Logout className="mr-3" />
-            Sign out
+            {t('common.signOut')}
           </ListItemIcon>
         </MenuItem>
       </MenuList>
@@ -194,10 +197,9 @@ const LanguageMenu = ({
       <MenuList>
         {languages.map((lang, index) => {
           const newUrl = getNewUrl(lang);
-          console.log(newUrl);
           return (
             <MenuItem key={lang} component={RouterLink} href={newUrl}>
-              <ListItemIcon>{t(`language.${lang}`)}</ListItemIcon>
+              <ListItemIcon>{t(`common.languages.${lang}`)}</ListItemIcon>
             </MenuItem>
           );
         })}

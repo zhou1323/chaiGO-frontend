@@ -1,4 +1,6 @@
 'use client';
+import { useTranslation } from '@/app/i18n/client';
+import { Namespaces } from '@/app/i18n/settings';
 import {
   createBudget,
   CreateBudgetParams,
@@ -38,36 +40,43 @@ interface BudgetsEditDialogProps {
   open: boolean;
   onClose: (refresh: boolean) => void;
   selectedBudget?: Budget;
+  locale: string;
 }
 
 const monthRegex = /^\d{4}-(0[1-9]|1[0-2])$/;
-const schema = zod.object({
-  date: zod.string().refine((val) => monthRegex.test(val), {
-    message: "Invalid month format. Expected format is 'YYYY-MM'.",
-  }),
-  budget: zod.coerce.number().nonnegative(),
-  recordedExpense: zod.coerce.number().nonnegative(),
-  otherExpense: zod.coerce.number().nonnegative(),
-  surplus: zod.coerce.number().nonnegative(),
-  notes: zod.string().optional(),
-});
 
-type Values = zod.infer<typeof schema>;
+const createSchema = (t: (key: string) => string) => {
+  return zod.object({
+    date: zod.string().refine((val) => monthRegex.test(val), {
+      message: t('common.invalidMonth'),
+    }),
+    budget: zod.coerce.number().nonnegative(),
+    recordedExpense: zod.coerce.number().nonnegative(),
+    otherExpense: zod.coerce.number().nonnegative(),
+    surplus: zod.coerce.number().nonnegative(),
+    notes: zod.string().optional(),
+  });
+};
 
-const defaultValues: Values = {
+const defaultValues = {
   date: dayjs().format('YYYY-MM'),
   budget: 0,
   recordedExpense: 0,
   otherExpense: 0,
   surplus: 0,
   notes: '',
-};
+} as const;
 
 export default function BudgetsEditDialog({
   open,
   onClose,
   selectedBudget,
+  locale,
 }: BudgetsEditDialogProps) {
+  const { t } = useTranslation(locale, Namespaces.dashboard);
+  const schema = React.useMemo(() => createSchema(t), [t]);
+  type Values = zod.infer<typeof schema>;
+
   const {
     control,
     handleSubmit,
@@ -155,7 +164,7 @@ export default function BudgetsEditDialog({
                   control={control}
                   name={key as FieldPath<Values>}
                   error={error}
-                  label={key}
+                  label={t(`budgets.${key}`)}
                   editable={key !== 'surplus' && key !== 'recordedExpense'}
                   value={
                     key === 'recordedExpense'
@@ -175,14 +184,14 @@ export default function BudgetsEditDialog({
       </DialogContent>
       <DialogActions className="px-4 py-2">
         <Button variant="outlined" size="small" onClick={() => onClose(false)}>
-          Cancel
+          {t('common.cancel')}
         </Button>
         <Button
           variant="contained"
           size="small"
           onClick={handleSubmit(onSubmit)}
         >
-          Save
+          {t('common.save')}
         </Button>
       </DialogActions>
     </Dialog>
@@ -200,8 +209,8 @@ const GridRow = ({
   type,
   maxLength = 20,
 }: {
-  control: Control<Values>;
-  name: FieldPath<Values>;
+  control: Control<any>;
+  name: FieldPath<any>;
   error: FieldError | undefined;
   label: string;
   value?: number;
@@ -212,11 +221,7 @@ const GridRow = ({
   return (
     <>
       <Grid item xs={4} lg={4} md={4} className="self-center">
-        <Typography variant="subtitle1">
-          {label
-            .replace(/([A-Z])/g, ' $1')
-            .replace(/^./, (str) => str.toUpperCase())}
-        </Typography>
+        <Typography variant="subtitle1">{label}</Typography>
       </Grid>
       <Grid item xs={8} lg={8} md={8}>
         {editable ? (

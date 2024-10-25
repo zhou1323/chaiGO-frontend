@@ -1,4 +1,6 @@
 'use client';
+import { useTranslation } from '@/app/i18n/client';
+import { Namespaces } from '@/app/i18n/settings';
 import { getBudgetsCurrent } from '@/lib/dashboard/budgetClient';
 import { weeksLeftInMonth } from '@/lib/utils';
 import useCustomizationStore from '@/store/customization';
@@ -20,6 +22,7 @@ import BudgetsEditDialog from './budgets-edit-dialog';
 interface BudgetsCurrentMonthProps {
   direction?: 'row' | 'column';
   onRefresh?: () => void;
+  locale: string;
 }
 
 export interface BudgetsCurrentMonthRef {
@@ -30,6 +33,7 @@ const BudgetsCurrentMonth = React.forwardRef<
   BudgetsCurrentMonthRef,
   BudgetsCurrentMonthProps
 >(function BudgetsCurrentMonth(props, ref) {
+  const { t } = useTranslation(props.locale, Namespaces.dashboard);
   // Get current month budget
   const [currentBudget, setCurrentBudget] = React.useState<Budget>();
   const getCurrentBudget = async () => {
@@ -84,8 +88,6 @@ const BudgetsCurrentMonth = React.forwardRef<
     return Math.round(currentBudget.surplus / weeksLeft);
   }, [currentBudget]);
 
-  const countryCode = 'sv-SE';
-
   const getCurrencyString = useCustomizationStore(
     (state) => state.getCurrencyString
   );
@@ -104,7 +106,9 @@ const BudgetsCurrentMonth = React.forwardRef<
             <Box>
               <Stack direction="row" spacing={2} alignItems="start">
                 <Box>
-                  <Typography variant="overline">Budget</Typography>
+                  <Typography variant="overline">
+                    {t('budgets.title')}
+                  </Typography>
                   <Typography variant="h4" className="font-bold">
                     {getCurrencyString(currentBudget?.budget || 0)}
                   </Typography>
@@ -122,7 +126,7 @@ const BudgetsCurrentMonth = React.forwardRef<
                   {0.0 + '%'}
                 </Typography>
                 <Typography className="text-xs font-normal leading-tight text-gray-500">
-                  Since last month
+                  {t('budgets.sinceLastMonth')}
                 </Typography>
               </Stack>
             </Box>
@@ -134,7 +138,9 @@ const BudgetsCurrentMonth = React.forwardRef<
           <CardContent className="p-0">
             <Box>
               <Box>
-                <Typography variant="overline">Expense</Typography>
+                <Typography variant="overline">
+                  {t('budgets.expense')}
+                </Typography>
                 <Typography variant="h4" className="font-bold">
                   {getCurrencyString(
                     (currentBudget?.otherExpense || 0) +
@@ -148,7 +154,7 @@ const BudgetsCurrentMonth = React.forwardRef<
                   {0.0 + '%'}
                 </Typography>
                 <Typography className="text-xs font-normal leading-tight text-gray-500">
-                  Since last month
+                  {t('budgets.sinceLastMonth')}
                 </Typography>
               </Stack>
             </Box>
@@ -160,7 +166,9 @@ const BudgetsCurrentMonth = React.forwardRef<
           <CardContent className="p-0">
             <Box>
               <Box>
-                <Typography variant="overline">Progress</Typography>
+                <Typography variant="overline">
+                  {t('budgets.progress')}
+                </Typography>
                 <Typography variant="h4" className="font-bold">
                   {expenseProgress}%
                 </Typography>
@@ -179,16 +187,20 @@ const BudgetsCurrentMonth = React.forwardRef<
           <CardContent className="p-0">
             <Box>
               <Box>
-                <Typography variant="overline">Remaining</Typography>
+                <Typography variant="overline">
+                  {t('budgets.remaining')}
+                </Typography>
                 <Typography variant="h4" className="font-bold">
                   {getCurrencyString(currentBudget?.surplus || 0)}
                 </Typography>
               </Box>
               <Stack direction="row" spacing={1} alignItems="center">
                 <Typography variant="overline">
-                  Weekly: {getCurrencyString(weeklyBudget)}
+                  {t('budgets.weekly')}: {getCurrencyString(weeklyBudget)}
                 </Typography>
-                <Tooltip title={`${weeksLeftInMonth()} weeks left`}>
+                <Tooltip
+                  title={t('budgets.weeksLeft', { weeks: weeksLeftInMonth() })}
+                >
                   <InfoOutlined className="cursor-pointer text-xs font-normal" />
                 </Tooltip>
               </Stack>
@@ -200,6 +212,7 @@ const BudgetsCurrentMonth = React.forwardRef<
         open={openDialog}
         onClose={handleDialog}
         selectedBudget={currentBudget}
+        locale={props.locale}
       ></BudgetsEditDialog>
     </>
   );

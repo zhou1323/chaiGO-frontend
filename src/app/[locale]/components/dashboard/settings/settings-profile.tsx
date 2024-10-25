@@ -1,3 +1,5 @@
+import { useTranslation } from '@/app/i18n/client';
+import { Namespaces } from '@/app/i18n/settings';
 import { updateUserMe } from '@/lib/dashboard/userClient';
 import useUserStore from '@/store/user';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -17,17 +19,20 @@ import * as React from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { z as zod } from 'zod';
 
-const schema = zod.object({
-  username: zod
-    .string()
-    .min(1, { message: 'Username should be at least 1 character' })
-    .max(30, { message: 'Username should be at most 30 characters' }),
-  email: zod.string().email({ message: 'Invalid email address' }),
-});
+const createSchema = (t: (key: string) => string) =>
+  zod.object({
+    username: zod
+      .string()
+      .min(1, { message: t('settings.usernameMinLength') })
+      .max(30, { message: t('settings.usernameMaxLength') }),
+    email: zod.string().email({ message: t('settings.invalidEmail') }),
+  });
 
-type Values = zod.infer<typeof schema>;
+export default function SettingsProfile({ locale }: { locale: string }) {
+  const { t } = useTranslation(locale, Namespaces.dashboard);
+  const schema = React.useMemo(() => createSchema(t), [t]);
+  type Values = zod.infer<typeof schema>;
 
-export default function SettingsProfile() {
   const [toSet, setToSet] = React.useState(false);
 
   const user = useUserStore((state) => state.user);
@@ -69,13 +74,15 @@ export default function SettingsProfile() {
 
   return (
     <Card className="w-1/2">
-      <CardHeader title="User Information" />
+      <CardHeader title={t('settings.userInfoHeader')} />
       <Divider />
       <CardContent>
         <form>
           <Stack spacing={2}>
             <Box>
-              <Typography className="font-bold">Username</Typography>
+              <Typography className="font-bold">
+                {t('settings.username')}
+              </Typography>
               <Controller
                 control={control}
                 name="username"
@@ -101,7 +108,9 @@ export default function SettingsProfile() {
               />
             </Box>
             <Box>
-              <Typography className="font-bold">Email address</Typography>
+              <Typography className="font-bold">
+                {t('settings.email')}
+              </Typography>
               <Controller
                 control={control}
                 name="email"
@@ -140,7 +149,7 @@ export default function SettingsProfile() {
               variant="outlined"
               onClick={onCancel}
             >
-              Cancel
+              {t('common.cancel')}
             </Button>
             <Button
               variant="contained"
@@ -148,7 +157,7 @@ export default function SettingsProfile() {
               size="small"
               onClick={handleSubmit(onSubmit)}
             >
-              Save
+              {t('common.save')}
             </Button>
           </Stack>
         ) : (
@@ -158,7 +167,7 @@ export default function SettingsProfile() {
             size="small"
             onClick={() => setToSet(true)}
           >
-            Edit
+            {t('common.edit')}
           </Button>
         )}
       </CardActions>

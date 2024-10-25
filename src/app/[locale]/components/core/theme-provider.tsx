@@ -3,6 +3,7 @@ import { ThemeProvider, createTheme } from '@mui/material';
 import { AppRouterCacheProvider } from '@mui/material-nextjs/v13-appRouter';
 import CssBaseline from '@mui/material/CssBaseline';
 import * as locales from '@mui/material/locale';
+import * as dateLocales from '@mui/x-date-pickers/locales';
 import * as React from 'react';
 
 const theme = createTheme({
@@ -27,7 +28,9 @@ export default function MUIThemeProvider({ children, locale }: Props) {
   const themeWithLocale = React.useMemo(() => {
     // BCP 47 language tag
     const formattedLocale = locale.replace('-', '');
-    return createTheme(theme, locales[formattedLocale as keyof typeof locales]);
+    const dateLocale = dateLocales[formattedLocale as keyof typeof dateLocales];
+    const materialLocale = locales[formattedLocale as keyof typeof locales];
+    return createTheme(theme, dateLocale, materialLocale);
   }, [locale]);
   return (
     <AppRouterCacheProvider options={{ key: 'css' }}>
