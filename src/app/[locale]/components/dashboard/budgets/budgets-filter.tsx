@@ -26,7 +26,7 @@ export default function BudgetsFilter({
   };
 
   return (
-    <Card className="rounded-lg bg-white p-4 shadow">
+    <Card className="rounded-lg p-4 shadow">
       <Stack direction="row" spacing={1}>
         <LocalizationProvider dateAdapter={AdapterDayjs}>
           <DatePicker

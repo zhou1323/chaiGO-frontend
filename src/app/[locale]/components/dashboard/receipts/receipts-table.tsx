@@ -68,7 +68,7 @@ export default function ReceiptsTable({
     <Card className="flex-auto overflow-auto rounded-lg shadow">
       <TableContainer className="">
         <Table>
-          <TableHead className="bg-gray-100">
+          <TableHead>
             <TableRow>
               <TableCell padding="checkbox">
                 <Checkbox

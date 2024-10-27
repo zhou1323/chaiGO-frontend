@@ -71,7 +71,7 @@ export default function BudgetTable({
     <Card className="rounded-lg shadow">
       <TableContainer>
         <Table>
-          <TableHead className="bg-gray-100">
+          <TableHead>
             <TableRow>
               {budgetTableColumns.map((column) => (
                 <TableCell

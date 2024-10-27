@@ -100,7 +100,7 @@ const BudgetsCurrentMonth = React.forwardRef<
         className={props.direction === 'column' ? 'w-80' : ''}
       >
         <Card
-          className={`${props.direction === 'column' ? 'flex-0' : 'flex-1'} h-32 rounded-lg bg-white px-4 py-2 shadow`}
+          className={`${props.direction === 'column' ? 'flex-0' : 'flex-1'} h-32 rounded-lg px-4 py-2 shadow`}
         >
           <CardContent className="p-0">
             <Box>
@@ -133,7 +133,7 @@ const BudgetsCurrentMonth = React.forwardRef<
           </CardContent>
         </Card>
         <Card
-          className={`${props.direction === 'column' ? 'flex-0' : 'flex-1'} h-32 rounded-lg bg-white px-4 py-2 shadow`}
+          className={`${props.direction === 'column' ? 'flex-0' : 'flex-1'} h-32 rounded-lg px-4 py-2 shadow`}
         >
           <CardContent className="p-0">
             <Box>
@@ -161,7 +161,7 @@ const BudgetsCurrentMonth = React.forwardRef<
           </CardContent>
         </Card>
         <Card
-          className={`${props.direction === 'column' ? 'flex-0' : 'flex-1'} h-32 rounded-lg bg-white px-4 py-2 shadow`}
+          className={`${props.direction === 'column' ? 'flex-0' : 'flex-1'} h-32 rounded-lg px-4 py-2 shadow`}
         >
           <CardContent className="p-0">
             <Box>
@@ -182,7 +182,7 @@ const BudgetsCurrentMonth = React.forwardRef<
           </CardContent>
         </Card>
         <Card
-          className={`${props.direction === 'column' ? 'flex-0' : 'flex-1'} h-32 rounded-lg bg-white px-4 py-2 shadow`}
+          className={`${props.direction === 'column' ? 'flex-0' : 'flex-1'} h-32 rounded-lg px-4 py-2 shadow`}
         >
           <CardContent className="p-0">
             <Box>

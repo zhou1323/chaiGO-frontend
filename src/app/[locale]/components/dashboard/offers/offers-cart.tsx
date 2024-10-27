@@ -193,7 +193,7 @@ export default function OffersCart({
   return (
     <Box className="sticky top-20 h-min w-1/4">
       <Card
-        className="rounded-lg bg-white shadow"
+        className="rounded-lg shadow"
         sx={{
           '& .MuiCardHeader-action': {
             margin: 0,

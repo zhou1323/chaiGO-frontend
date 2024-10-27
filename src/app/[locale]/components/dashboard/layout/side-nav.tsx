@@ -76,7 +76,7 @@ export default function SideNav({
         variant={isPC ? 'persistent' : 'temporary'}
         open={open}
         onClose={onClose}
-        PaperProps={{ className: 'w-60 py-6 bg-gray-900' }}
+        PaperProps={{ className: 'w-60 py-6 bg-gray-900 dark:bg-[#121212]' }}
         className={
           open
             ? 'ease-[0.4, 0, 0.6, 1] w-60 transition-[width] duration-[195ms]'

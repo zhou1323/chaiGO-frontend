@@ -3,6 +3,7 @@ import AuthGuard from '@/app/[locale]/components/auth/auth-guard';
 import Footer from '@/app/[locale]/components/dashboard/layout/footer';
 import MainNav from '@/app/[locale]/components/dashboard/layout/main-nav';
 import SideNav from '@/app/[locale]/components/dashboard/layout/side-nav';
+import useCustomizationStore from '@/store/customization';
 import { Box, Container } from '@mui/material';
 import * as React from 'react';
 
@@ -14,10 +15,11 @@ export default function Layout({
   params: { locale: string };
 }) {
   const [navOpen, setNavOpen] = React.useState(false);
+  const { colorMode } = useCustomizationStore();
 
   return (
     <AuthGuard locale={locale}>
-      <Box className="flex min-h-dvh">
+      <Box className={`flex min-h-dvh ${colorMode === 'dark' ? 'dark' : ''}`}>
         <SideNav
           open={navOpen}
           onClose={() => setNavOpen(false)}
@@ -25,7 +27,9 @@ export default function Layout({
         />
         <Box className="flex flex-auto flex-col">
           <MainNav handleNavOpen={() => setNavOpen(!navOpen)} locale={locale} />
-          <main className="flex flex-auto flex-col bg-gray-50 p-6">
+          <main
+            className={`flex flex-auto flex-col bg-gray-50 p-6 dark:bg-[#121212]`}
+          >
             <Container
               maxWidth={false}
               className="min-w-[1024px] flex-auto p-0"

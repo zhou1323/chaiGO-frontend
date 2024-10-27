@@ -42,7 +42,7 @@ export default function ReceiptsFilter({
   };
 
   return (
-    <Card className="rounded-lg bg-white p-4 shadow">
+    <Card className="rounded-lg p-4 shadow">
       <Stack direction="row" spacing={1}>
         <FormControl size="small">
           <InputLabel>{t('receipts.searchDescription')}</InputLabel>

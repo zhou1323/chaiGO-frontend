@@ -2,11 +2,20 @@
 
 import { usePopover } from '@/hooks/use-popover';
 import useUserStore from '@/store/user';
-import { List, Logout, Person, Settings, Translate } from '@mui/icons-material';
+import {
+  DarkMode,
+  LightMode,
+  List,
+  Logout,
+  Person,
+  Settings,
+  Translate,
+} from '@mui/icons-material';
 
 import { useTranslation } from '@/app/i18n/client';
 import { languages, Namespaces } from '@/app/i18n/settings';
 import { getLocalizedPath, paths } from '@/paths';
+import useCustomizationStore from '@/store/customization';
 import { User } from '@/types/user';
 import {
   Box,
@@ -37,6 +46,7 @@ export default function MainNav({
 
   const user = useUserStore((state) => state.user);
 
+  const { colorMode, setColorMode } = useCustomizationStore();
   const router = useRouter();
 
   const handleSignOut = async () => {
@@ -61,7 +71,7 @@ export default function MainNav({
   return (
     <Box
       component="header"
-      className="sticky top-0 z-10 h-16 bg-white px-6 py-3 shadow"
+      className="sticky top-0 z-10 h-16 bg-white px-6 py-3 shadow dark:bg-[#121212]"
     >
       <Stack direction="row" className="items-center justify-between">
         <Stack direction="row" spacing={1} className="items-center">
@@ -71,6 +81,13 @@ export default function MainNav({
         </Stack>
 
         <Stack direction="row" spacing={1} className="items-center">
+          <IconButton
+            onClick={() =>
+              setColorMode(colorMode === 'light' ? 'dark' : 'light')
+            }
+          >
+            {colorMode === 'light' ? <DarkMode /> : <LightMode />}
+          </IconButton>
           <Tooltip
             title=""
             ref={languagePopover.anchorRef}

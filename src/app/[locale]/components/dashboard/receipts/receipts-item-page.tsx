@@ -289,7 +289,7 @@ export default function ReceiptsItemPage({
           </Button>
         )}
       </Stack>
-      <Card className="rounded-lg bg-white p-4 shadow">
+      <Card className="rounded-lg p-4 shadow">
         <form onSubmit={handleSubmit(onSubmit)}>
           <Stack direction={'row'} spacing={6} justifyContent="space-between">
             <Stack spacing={3} className="flex-1">
@@ -486,9 +486,7 @@ export default function ReceiptsItemPage({
                 <TableRow>
                   {Object.keys(defaultItemValues).map((column) => (
                     <TableCell key={column} className="font-bold">
-                      {column
-                        .replace(/([A-Z])/g, ' $1')
-                        .replace(/^./, (str) => str.toUpperCase())}
+                      {t(`receipts.${column}`)}
                     </TableCell>
                   ))}
 
