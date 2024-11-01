@@ -5,6 +5,8 @@ import { getVerificationCode } from '@/lib/auth/client';
 import { getLocalizedPath, paths } from '@/paths';
 import useUserStore from '@/store/user';
 import { zodResolver } from '@hookform/resolvers/zod';
+import VisibilityOffOutlinedIcon from '@mui/icons-material/VisibilityOffOutlined';
+import VisibilityOutlinedIcon from '@mui/icons-material/VisibilityOutlined';
 import { Alert, Button, Stack, TextField, Typography } from '@mui/material';
 import Link from '@mui/material/Link';
 import RouterLink from 'next/link';
@@ -12,7 +14,6 @@ import { useRouter } from 'next/navigation';
 import * as React from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { z as zod } from 'zod';
-
 const createSchema = (t: (key: string) => string) =>
   zod.object({
     email: zod
@@ -52,6 +53,7 @@ export default function SignUpPage({
   } = useForm<Values>({ defaultValues, resolver: zodResolver(schema) });
 
   const [isPending, setIsPending] = React.useState(false);
+  const [showPassword, setShowPassword] = React.useState(false);
 
   const signUp = useUserStore((state) => state.signUp);
   const [isRequestingVerificationCode, setIsRequestingVerificationCode] =
@@ -177,7 +179,7 @@ export default function SignUpPage({
                 {...field}
                 size="small"
                 label={t('common.password')}
-                type="password"
+                type={showPassword ? 'text' : 'password'}
                 error={!!errors.password}
                 helperText={errors.password?.message}
                 onKeyUp={(e) => {
@@ -185,6 +187,29 @@ export default function SignUpPage({
                     handleSubmit(onSubmit)();
                   }
                 }}
+                InputProps={
+                  showPassword
+                    ? {
+                        endAdornment: (
+                          <VisibilityOutlinedIcon
+                            cursor="pointer"
+                            onClick={() => {
+                              setShowPassword(false);
+                            }}
+                          />
+                        ),
+                      }
+                    : {
+                        endAdornment: (
+                          <VisibilityOffOutlinedIcon
+                            cursor="pointer"
+                            onClick={() => {
+                              setShowPassword(true);
+                            }}
+                          />
+                        ),
+                      }
+                }
               ></TextField>
             )}
           ></Controller>
