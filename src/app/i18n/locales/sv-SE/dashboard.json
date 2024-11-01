@@ -1,8 +1,8 @@
 {
   "common": {
     "languages": {
-      "en-US": "Engelska",
-      "zh-CN": "Kinesiska",
+      "en-US": "English",
+      "zh-CN": "中文",
       "sv-SE": "Svenska"
     },
     "forFurtherDetails": {

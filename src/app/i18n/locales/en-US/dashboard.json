@@ -2,8 +2,8 @@
   "common": {
     "languages": {
       "en-US": "English",
-      "zh-CN": "Chinese",
-      "sv-SE": "Swedish"
+      "zh-CN": "中文",
+      "sv-SE": "Svenska"
     },
     "forFurtherDetails": {
       "previous": "For further details, please visit this ",

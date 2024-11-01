@@ -1,11 +1,13 @@
 'use client';
 
 import { useTranslation } from '@/app/i18n/client';
-import { Namespaces } from '@/app/i18n/settings';
+import { languages, Namespaces } from '@/app/i18n/settings';
+import { usePopover } from '@/hooks/use-popover';
 import { getCaptcha } from '@/lib/auth/client';
 import { getLocalizedPath, paths } from '@/paths';
 import useUserStore from '@/store/user';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { Translate } from '@mui/icons-material';
 import VisibilityOffOutlinedIcon from '@mui/icons-material/VisibilityOffOutlined';
 import VisibilityOutlinedIcon from '@mui/icons-material/VisibilityOutlined';
 import {
@@ -15,15 +17,20 @@ import {
   FormControl,
   IconButton,
   InputLabel,
+  ListItemIcon,
+  MenuItem,
+  MenuList,
   OutlinedInput,
+  Popover,
   Stack,
   TextField,
+  Tooltip,
   Typography,
 } from '@mui/material';
 import Link from '@mui/material/Link';
 import Image from 'next/image';
 import RouterLink from 'next/link';
-import { useRouter } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import * as React from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { z as zod } from 'zod';
@@ -113,6 +120,49 @@ export default function SignInPage({
     setIsPending(false);
   };
 
+  const pathname = usePathname();
+  const languagePopover = usePopover<HTMLDivElement>();
+  const getNewUrl = React.useMemo(() => {
+    return (lang: string) => pathname.replace(locale, lang);
+  }, [pathname, locale]);
+  const LanguageMenu = ({
+    anchorRef,
+    open,
+    handleClose,
+    t,
+    getNewUrl,
+  }: {
+    anchorRef: React.MutableRefObject<HTMLElement | null>;
+    open: boolean;
+    handleClose: () => void;
+    t: any;
+    getNewUrl: (lang: string) => string;
+  }) => {
+    return (
+      <Popover
+        anchorEl={anchorRef.current}
+        open={open}
+        onClose={handleClose}
+        anchorOrigin={{
+          vertical: 'bottom',
+          horizontal: 'left',
+        }}
+        slotProps={{ paper: { className: 'w-36' } }}
+      >
+        <MenuList>
+          {languages.map((lang, index) => {
+            const newUrl = getNewUrl(lang);
+            return (
+              <MenuItem key={lang} component={RouterLink} href={newUrl}>
+                <ListItemIcon>{t(`common.languages.${lang}`)}</ListItemIcon>
+              </MenuItem>
+            );
+          })}
+        </MenuList>
+      </Popover>
+    );
+  };
+
   React.useEffect(() => {
     if (enableCaptcha) {
       fetchCaptcha();
@@ -128,20 +178,38 @@ export default function SignInPage({
           <Typography variant="h4" className="font-bold">
             {t('signIn.welcome')}
           </Typography>
-          <Link
-            href="https://github.com/zhou1323/chaiGO"
-            target="_blank"
-            component={RouterLink}
-          >
-            <IconButton>
-              <Image
-                src="/assets/github-mark.svg"
-                alt="github"
-                width={24}
-                height={24}
-              />
-            </IconButton>
-          </Link>
+          <Box>
+            <Link
+              href="https://github.com/zhou1323/chaiGO"
+              target="_blank"
+              component={RouterLink}
+            >
+              <IconButton>
+                <Image
+                  src="/assets/github-mark.svg"
+                  alt="github"
+                  width={24}
+                  height={24}
+                />
+              </IconButton>
+            </Link>
+            <Tooltip
+              title=""
+              ref={languagePopover.anchorRef}
+              onClick={languagePopover.handleOpen}
+            >
+              <IconButton>
+                <Translate />
+              </IconButton>
+            </Tooltip>
+            <LanguageMenu
+              anchorRef={languagePopover.anchorRef}
+              open={languagePopover.open}
+              handleClose={languagePopover.handleClose}
+              t={t}
+              getNewUrl={getNewUrl}
+            />
+          </Box>
         </Box>
 
         <Typography variant="body2" className="text-gray-500">

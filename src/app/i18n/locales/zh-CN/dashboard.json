@@ -1,9 +1,9 @@
 {
   "common": {
     "languages": {
-      "en-US": "英语",
+      "en-US": "English",
       "zh-CN": "中文",
-      "sv-SE": "瑞典语"
+      "sv-SE": "Svenska"
     },
     "forFurtherDetails": {
       "previous": "如需更多详情，请访问此 ",
